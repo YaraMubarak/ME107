@@ -27,20 +27,23 @@ SqrtPressureTransducerVoltage = sqrt(PressureTransducerVoltage);
 PressureTransducerRegressionCoefs = polyfit(SqrtPressureTransducerVoltage,AnemometerVelocity,1);
 VelocityRegression = @(PresVolt) polyval(PressureTransducerRegressionCoefs,sqrt(PresVolt));
 
+%Get error 
+std_from_fit = (1/length(PressureTransducerVoltage)).*sum(AnemometerVelocity - VelocityRegression(PressureTransducerVoltage)).^2;
+
 
 % Plot Transducer to Velocity Regression
 EquationString = sprintf('v = %.3f * sqrt(V) + %.3f',PressureTransducerRegressionCoefs);
+ErrorString = sprintf('+/- %d  (95%%)', 2*std_from_fit) ;
 figure()
 hold on
 plot(PressureTransducerVoltage,AnemometerVelocity,'b.')
 plot(PressureTransducerVoltage,VelocityRegression(PressureTransducerVoltage),'k--','LineWidth',2)
 text(.75,15,EquationString)
+text(.85,13,ErrorString) 
 xlabel('Pressure Transducer Voltage - zero offset [V]')
 ylabel('Anemometer Velocity [m/s]')
 legend('Data Points','Regression values','Location','NorthWest')
 
 
-%% Get error 
-std_from_fit = (1/length(PressureTransducerVoltage)).*sum(AnemometerVelocity - VelocityRegression(PressureTransducerVoltage)).^2;
 
  
