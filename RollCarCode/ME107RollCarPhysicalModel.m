@@ -83,7 +83,7 @@ FullFilePath = strcat(GlobalPath,filesep,Folder,filesep,FileName);
 
 %% dynamics model
 [Xdata,Ydata,Tdata] = getXY(FullFilePath);
-Tdata = Tdata+.464; % get XY fails to account for actual release point
+Tdata = Tdata; % get XY fails to account for actual release point
 Xdata = Xdata/100;
 Ydata = Ydata/100;
 
