@@ -16,21 +16,68 @@
 % of X,Y, and T of the roll car as it passes in between sensors.
 
 function [X,Y,T]=getXY(fileName)
-   rawData=xlsread(fileName,'A24:R20000'); 
+   rawData=xlsread(fileName,'A24:R20000');
    % R20000 is set arbitrary large so that all the data can be taken.  No
    % need to change R20000 unless for some reason the xlsx file is so large
    % that there are more than 20000 rows.
    
+   regular_expression='(\d+_\d+)_rg_(\d+_\d+)_mass_(\d+)_height_run(\d).xlsx';
+   
+   tokens=regexp(fileName,regular_expression,'tokens');
+   str_data=strrep(tokens{1},'_','.');
+        
+   r=str2num(str_data{1});
+   m=str2num(str_data{2});
+   h=str2num(str_data{3});
+   run=str2num(str_data{4});
+   
    % Removes the time before the roll car is released.
    totalTime=rawData(:,1);
    releaseIndices=find(rawData(:,18));
-   runTimeIndices=max(releaseIndices):length(totalTime);
+   runTimeIndices=min(releaseIndices):length(totalTime);
    runTime=totalTime(runTimeIndices);
    runTimeData=rawData(runTimeIndices,:);
    
    % Calculates X,Y, and T
    threshold=5.; %V
-   counter=1;
+   counter=2;
+   
+   T(1)=runTime(1);
+   
+   switch h
+       case 1
+           X(1)=41.0;
+           Y(1)=23.3;
+       case 2
+           X(1)=37.6;
+           Y(1)=26.6;
+       case 3
+           X(1)=32.7;
+           Y(1)=29.9;
+       case 4
+           X(1)=29.0;
+           Y(1)=33.5;
+       case 5
+           X(1)=25.0;
+           Y(1)=37.7;
+       case 6
+           X(1)=20.2;
+           Y(1)=41.3;
+       case 7
+           X(1)=17.7;
+           Y(1)=45.2;
+       case 8
+           X(1)=13.5;
+           Y(1)=48.7;
+       case 9
+           X(1)=9.9;
+           Y(1)=52.8;
+       case 10
+           X(1)=5.9;
+           Y(1)=55.9;
+        
+     end
+   
    for m=1:length(runTime)
        sensorReadings=runTimeData(m,2:end);
        location=find(sensorReadings>threshold); % Sensor # where roll car is detected.
@@ -103,6 +150,8 @@ function [X,Y,T]=getXY(fileName)
    
    % Shifts the time so that T=0 corresponds to the time when the roll car
    % is released.
-   disp(T(1))
+   
+   disp(T(1));
+   
    T=T-T(1);
 end
