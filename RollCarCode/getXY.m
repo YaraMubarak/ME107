@@ -103,5 +103,6 @@ function [X,Y,T]=getXY(fileName)
    
    % Shifts the time so that T=0 corresponds to the time when the roll car
    % is released.
+   disp(T(1))
    T=T-T(1);
 end

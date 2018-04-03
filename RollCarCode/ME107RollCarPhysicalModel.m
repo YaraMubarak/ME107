@@ -83,21 +83,27 @@ FullFilePath = strcat(GlobalPath,filesep,Folder,filesep,FileName);
 
 %% dynamics model
 [Xdata,Ydata,Tdata] = getXY(FullFilePath);
+Tdata = Tdata+.464; % get XY fails to account for actual release point
 Xdata = Xdata/100;
 Ydata = Ydata/100;
 
-% most of these numbers are random at teh moment
-m = 1; % kg
-rw = .15; % m
-rg = .15; % m
-mus = .1;
-muk = .08;
-CD = 0;
-CL = 0;
+%% verify the final result with lots of graphs
+TimeStep = 2e-3;
+m = 2.4582; % kg
+rw = .1188; % m
+rg = .04; % m (uncalculated guestimate)
+
+vector = [.05;1;.5;.01;.6];
+
+muk = vector(1);
+mus = muk*vector(2);
+CD = vector(3);
+CL = vector(4);
+sinit = vector(5);
 
 RCDAF = GetRollCarDynamicsFunction(m,rw,rg,mus,muk,CD,CL,TrackPosition_s,TrackSlope_s,TrackCurvature_s);
 
-[tsim,xvectsim] = ode45(RCDAF,[0,25],[.6;0;0;0]);
+[tsim,xvectsim] = RungeKutta4(RCDAF,[0,Tdata(end)],[sinit;0;0;0],TimeStep);
 ssim = xvectsim(:,1);
 % ! there is hysterisis in the call to s_to_x so this dumnb thing is
 % required. have no clue as to cause fo hysterisis, perhapse how code was
@@ -112,12 +118,17 @@ ysim = [];
 for plum = 1:numel(xsim)
     ysim = [ysim; TrackPosition_s(ssim(plum))];
 end
+xfunction = @(xx) linterp(tsim,xsim,xx);
+yfunction = @(xx) linterp(tsim,ysim,xx);
+
+MeanSquareError = mean(sqrt((xfunction(Tdata)-Xdata).^2 + (yfunction(Tdata)-Ydata).^2));
+fprintf('Mean Square Error: %d \n', MeanSquareError)
 
 sdot = xvectsim(:,2);
 thetadot = xvectsim(:,4);
 KineticEnergy = .5*m*sdot.^2 + .5*m*rg^2*thetadot.^2;
 PotentialEnergy = m*9.81*ysim;
-TotalEnergy = .5*KineticEnergy + PotentialEnergy;
+TotalEnergy = KineticEnergy + PotentialEnergy;
 
 % plot lots of figures to determine if simulation is physical or not
 
@@ -150,7 +161,7 @@ legend('Data Y Position','Simulation Y Position','Location','best')
 set(gca,'FontSize',14);
 
 % animation to ensure that results "look" right
-% pause(1)
+pause(1)
 % figure()
 % for index = 1:numel(tsim)
 %     plot(interppoints,TrackPosition(interppoints),'r')

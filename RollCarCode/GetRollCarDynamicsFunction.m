@@ -1,7 +1,6 @@
 function RCDAF = GetRollCarDynamicsFunction(m,rw,rg,mus,muk,CD,CL,TrackPosition_s,TrackSlope_s,TrackCurvature_s)
 rhoa = 1.275;
-ACS = .1*.1; % random at moment, will refine
-
+ACS = .1*.0678 +2*.1188*.02;
 RCDAF = @(t,x) RollCarDynamics(t,x);
 
     function xdot = RollCarDynamics(t,x)
@@ -17,27 +16,40 @@ RCDAF = @(t,x) RollCarDynamics(t,x);
 
     Fr_et = Fr(1);
     Fr_en = Fr(2);
-
+    
+    % fundamental equations for without slip
     xdot = zeros(4,1);
     xdot(1) = x(2);
-    xdot(2) = Fr_et/(m*(2-rg^2/rw^2));
+    xdot(2) = Fr_et/(m*(1+rg^2/rw^2));
     xdot(3) = x(4);
     xdot(4) = xdot(2)/rw;
 
-    Fn = m*k*(x(2)^2 + rw*x(2)*x(4)) - Fr_en;
-    Ff = xdot(2)*m*rg^2/rw^2;
+    Fn = m*k*x(2)^2 - Fr_en;
+    Ff = m*xdot(2) - Fr_et;
+  
+    fprintf('Ff: %f \t Fn: %f \t Fr_et: %f \t Fr_en: %f \t sdot: %f \t sddot: %f \t thetadot: %f \t thetaddot: %f \n',Ff,Fn,Fr_et,Fr_en,sdot,xdot(2),thetadot,xdot(4))
     
     StaticMax = mus*Fn;
-    fprintf('Ff: %f \t StaticMax: %f \n',Ff,StaticMax)
+    if abs(Ff) <= StaticMax
+        edit = 'nothing'; % better way to do non event?
+    else % fundamental equations for case with slip
+        fprintf('Help I am slipping! \n')
+        Ff = -muk*Fn*sign(sdot-rw*thetadot);
+        xdot(2) = (Fr_et + Ff)/m;
+        xdot(4) = -Ff*rw/(m*rg^2);
+        fprintf('Ff: %f \t Fn: %f \t Fr_et: %f \t Fr_en: %f \t sdot: %f \t sddot: %f \t thetadot: %f \t thetaddot: %f \n',Ff,Fn,Fr_et,Fr_en,sdot,xdot(2),thetadot,xdot(4))
+    end
     
+    % to be removed checks wether energy conserved
     KineticEnergy = .5*m*sdot^2 + .5*m*rg^2*thetadot^2;
     PotentialEnergy = m*9.81*TrackPosition_s(s);
     TotalEnergy = KineticEnergy + PotentialEnergy;
-    fprintf('KE: %d \t PE: %d \t TE: %d \n',KineticEnergy,PotentialEnergy,TotalEnergy);
+    fprintf('t: %f \t KE: %d \t PE: %d \t TE: %d \n',t,KineticEnergy,PotentialEnergy,TotalEnergy);
+    %
     
         function Fr = GetStuff()
             Faero = .5*ACS*rhoa*sdot^2*[-sign(sdot)*CD,CL];     
-            Fg = 9.81*m*[-sin(phi),cos(phi)];
+            Fg = -9.81*m*[sin(phi),cos(phi)];
             Fr = Fg + Faero;
         end % GetStuff
     end % RollCarDynamics
