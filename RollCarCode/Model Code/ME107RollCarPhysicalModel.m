@@ -1,17 +1,25 @@
 clear all; close all;
+%% file path things!
 % implemented owners names = 'Patrick','Colin'
 % put in your own and add your name to the list
 ComputerOwner = 'Patrick';
 
-Folder = 'RollCarCode';
+ProjectFolder = 'RollCarCode';
+DataFolder = strcat('Data',filesep,'2x2x2_test_matrix');
+DataCodeFolder = 'Data Processing Code';
 switch ComputerOwner
     case 'Patrick'
-        GlobalPath = 'C:\Users\pcarl\Documents\College Things\ME 107\Roll Car\Github Code Repository\';
+        GitRepositoryPath = 'C:\Users\pcarl\Documents\College Things\ME 107\Roll Car\Github Code Repository';
     case 'Colin'
-        GlobalPath = '';
+        GitRepositoryPath = '';
     otherwise
         error('ME107RollCarPhysicsModel: ComputerOwner name %s not found in Possible options.Please add your options to the list',ComputerOwner) 
 end
+
+DataCodeFullPath = strcat(GitRepositoryPath,filesep,DataCodeFolder);
+DataFullPath = strcat(GitRepositoryPath,filesep,DataFolder);
+
+addpath(DataFullPath,DataCodeFullPath)
 %% Some basic stuff from the beginning
 nuair = 1.524e-6; % m^2/s (kinematic viscosity
 vnom = 5; % m/s
@@ -77,13 +85,11 @@ figure()
 plot(interppoints,TrackCurvature(interppoints))
 title('Track k value as function of x')
 %% Make file pipeline in order to efficiently extract data (not implemented)
-
-FileName = 'F111_10_run1.xlsx';
-FullFilePath = strcat(GlobalPath,filesep,Folder,filesep,FileName);
+configs = getConfigurationData(DataFullPath)
 
 %% dynamics model
 [Xdata,Ydata,Tdata] = getXY(FullFilePath);
-Tdata = Tdata+.464; % get XY fails to account for actual release point
+Tdata = Tdata; % get XY fails to account for actual release point
 Xdata = Xdata/100;
 Ydata = Ydata/100;
 
