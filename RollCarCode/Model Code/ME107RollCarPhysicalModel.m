@@ -85,9 +85,7 @@ figure()
 plot(interppoints,TrackCurvature(interppoints))
 title('Track k value as function of x')
 %% Make file pipeline in order to efficiently extract data (not implemented)
-
-FileName = 'F111_10_run1.xlsx';
-FullFilePath = strcat(GlobalPath,filesep,Folder,filesep,FileName);
+configs = getConfigurationData(DataFullPath)
 
 %% dynamics model
 [Xdata,Ydata,Tdata] = getXY(FullFilePath);
