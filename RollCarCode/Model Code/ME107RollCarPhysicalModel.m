@@ -16,8 +16,8 @@ switch ComputerOwner
         error('ME107RollCarPhysicsModel: ComputerOwner name %s not found in Possible options.Please add your options to the list',ComputerOwner) 
 end
 
-DataCodeFullPath = strcat(GitRepositoryPath,filesep,DataCodeFolder);
-DataFullPath = strcat(GitRepositoryPath,filesep,DataFolder);
+DataCodeFullPath = strcat(GitRepositoryPath,filesep,ProjectFolder,filesep,DataCodeFolder);
+DataFullPath = strcat(GitRepositoryPath,filesep,ProjectFolder,filesep,DataFolder);
 
 addpath(DataFullPath,DataCodeFullPath)
 %% Some basic stuff from the beginning
@@ -85,9 +85,10 @@ figure()
 plot(interppoints,TrackCurvature(interppoints))
 title('Track k value as function of x')
 %% Make file pipeline in order to efficiently extract data (not implemented)
-configs = getConfigurationData(DataFullPath)
-
-%% dynamics model
+% configs = getConfigurationData(DataFullPath)
+filename = '42_7592_rg_932_3_mass_1_height_run1.xlsx';
+FullFilePath = strcat(DataFullPath,filesep,filename);
+%% Get Comparison Data
 [Xdata,Ydata,Tdata] = getXY(FullFilePath);
 Tdata = Tdata; % get XY fails to account for actual release point
 Xdata = Xdata/100;
@@ -95,31 +96,63 @@ Ydata = Ydata/100;
 
 %% verify the final result with lots of graphs
 TimeStep = 2e-3;
+%TimeStep = .01;
 m = 2.4582; % kg
 rw = .1188; % m
 rg = .04; % m (uncalculated guestimate)
 
-vector = [.05;1;.5;.01;.6];
+CD_bounds = [0,3];
+CL_bounds = [0,.1];
+muk_bounds = [0,.5];
+mus_times_bounds = [1,2];
+sinit_bounds = [.5,1];
+Random_bounds = [CD_bounds;CL_bounds;muk_bounds;mus_times_bounds;sinit_bounds];
 
-muk = vector(1);
-mus = muk*vector(2);
-CD = vector(3);
-CL = vector(4);
-sinit = vector(5);
+TotalStates = 5;
+StateVects = ME107RollCarMakeNChildren(TotalStates,Random_bounds);
+StateVects = [StateVects;zeros([1,TotalStates])];
+tic;
+% go through the individual state vectors
+for jujube = 1:TotalStates
+    IndividualStateVector = StateVects(1:(end-1),jujube);
+    OldMSE = StateVects(end,jujube); 
+    if OldMSE ~= 0
+        continue
+    end
+    MSE = ME107RollCarGetMSE(IndividualStateVector,Tdata,Xdata,Ydata,TimeStep,m,rw,rg,s_to_x,TrackPosition_s,TrackSlope_s,TrackCurvature_s);
+    StateVects(end,jujube) = MSE;
+end
+fprintf('%d model runs',TotalStates)
+toc;
+fprintf('\n')
+% sort in the fittest models through minimization
+MSEColVect = StateVects(end,:);
+[~,SortedIndices] = sort(MSEColVect);
+disp(StateVects)
+StateVects = StateVects(:,SortedIndices)
+
+%% Check the winning configuration
+WinVector = StateVects(1:(end-1),1);
+WinnerMSE = StateVects(end,1);
+fprintf('Winning Vector:\n')
+disp(WinVector)
+fprintf('Winning Configuration Mean Square Error: %d \n', WinnerMSE)
+
+CD = WinVector(1);
+CL = WinVector(2);
+muk = WinVector(3);
+mus = muk*WinVector(4);
+sinit = WinVector(5);
 
 RCDAF = GetRollCarDynamicsFunction(m,rw,rg,mus,muk,CD,CL,TrackPosition_s,TrackSlope_s,TrackCurvature_s);
-
 [tsim,xvectsim] = RungeKutta4(RCDAF,[0,Tdata(end)],[sinit;0;0;0],TimeStep);
 ssim = xvectsim(:,1);
-% ! there is hysterisis in the call to s_to_x so this dumnb thing is
-% required. have no clue as to cause fo hysterisis, perhapse how code was
-% optimized to run on vector inputs.
+% HYSTERISIS!
 xsim = [];
 for apple = 1:numel(ssim) 
 xsim = [xsim; s_to_x(ssim(apple))];
 end
-% for good measure ill do this one the same way, yes it is less efficient
-% but i don't care. 
+% HYSTERISIS !
 ysim = [];
 for plum = 1:numel(xsim)
     ysim = [ysim; TrackPosition_s(ssim(plum))];
@@ -127,8 +160,7 @@ end
 xfunction = @(xx) linterp(tsim,xsim,xx);
 yfunction = @(xx) linterp(tsim,ysim,xx);
 
-MeanSquareError = mean(sqrt((xfunction(Tdata)-Xdata).^2 + (yfunction(Tdata)-Ydata).^2));
-fprintf('Mean Square Error: %d \n', MeanSquareError)
+%MeanSquareError = mean(sqrt((xfunction(Tdata)-Xdata).^2 + (yfunction(Tdata)-Ydata).^2));
 
 sdot = xvectsim(:,2);
 thetadot = xvectsim(:,4);
