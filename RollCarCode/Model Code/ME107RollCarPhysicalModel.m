@@ -20,7 +20,28 @@ DataCodeFullPath = strcat(GitRepositoryPath,filesep,ProjectFolder,filesep,DataCo
 DataFullPath = strcat(GitRepositoryPath,filesep,ProjectFolder,filesep,DataFolder);
 
 addpath(DataFullPath,DataCodeFullPath)
-%% Some basic stuff from the beginning
+%% Things Requiring changeing
+PlotTrackThings = false;
+MakeNewStateVects = false;
+
+TimeStep = 2e-3;
+
+Iterations = 1;
+TotalStates = 20;
+Survivors = 3;
+ChilderenPerCouple = 2;
+RemainingRandomOffspring = TotalStates - Survivors - ChilderenPerCouple*(Survivors-1)*Survivors/2;
+if RemainingRandomOffspring < 1
+    error('To many survivors for Total number of states')
+end
+
+CD_bounds = [0,3];
+CL_bounds = [0,.1];
+muk_bounds = [0,.5];
+mus_times_bounds = [1,2];
+sinit_bounds = [.4,1];
+Random_bounds = [CD_bounds;CL_bounds;muk_bounds;mus_times_bounds;sinit_bounds];
+
 nuair = 1.524e-6; % m^2/s (kinematic viscosity
 vnom = 5; % m/s
 rnom = .025; % m
@@ -59,84 +80,106 @@ TrackPosition_s = @(s) TrackPosition(s_to_x(s));
 TrackSlope_s = @(s) TrackSlope(s_to_x(s));
 TrackCurvature_s = @(s) TrackCurvature(s_to_x(s));
 
-% plotting to make sure all is well
-interppoints = linspace(Trackxvals(1),Trackxvals(end),2000);
+if PlotTrackThings
+    % plotting to make sure all is well
+    interppoints = linspace(Trackxvals(1),Trackxvals(end),2000);
 
-figure()
-hold on
-plot(Trackxvals,Trackyvals,'go')
-plot(interppoints,TrackPosition(interppoints),'r')
-title('Track function')
-% axis('equal')
+    figure()
+    hold on
+    plot(Trackxvals,Trackyvals,'go')
+    plot(interppoints,TrackPosition(interppoints),'r')
+    title('Track function')
+    % axis('equal')
 
-figure()
-plot(interppoints,TrackSlope(interppoints))
-title('Track slope as function of x')
+    figure()
+    plot(interppoints,TrackSlope(interppoints))
+    title('Track slope as function of x')
 
-figure()
-plot(interppoints,atan(TrackSlope(interppoints)))
-title('Track angle of slope')
+    figure()
+    plot(interppoints,atan(TrackSlope(interppoints)))
+    title('Track angle of slope')
 
-figure()
-plot(interppoints,TrackConcavity(interppoints))
-title('Track Second derivative as function of x')
+    figure()
+    plot(interppoints,TrackConcavity(interppoints))
+    title('Track Second derivative as function of x')
 
-figure()
-plot(interppoints,TrackCurvature(interppoints))
-title('Track k value as function of x')
+    figure()
+    plot(interppoints,TrackCurvature(interppoints))
+    title('Track k value as function of x')
+end
 %% Make file pipeline in order to efficiently extract data (not implemented)
 % configs = getConfigurationData(DataFullPath)
 filename = '42_7592_rg_932_3_mass_1_height_run1.xlsx';
 FullFilePath = strcat(DataFullPath,filesep,filename);
 %% Get Comparison Data
 [Xdata,Ydata,Tdata] = getXY(FullFilePath);
-Tdata = Tdata; % get XY fails to account for actual release point
 Xdata = Xdata/100;
 Ydata = Ydata/100;
 
 %% verify the final result with lots of graphs
-TimeStep = 2e-3;
-%TimeStep = .01;
-m = 2.4582; % kg
+m = .9323; % kg
 rw = .1188; % m
-rg = .04; % m (uncalculated guestimate)
+rg = .0427592; % m (uncalculated guestimate)
 
-CD_bounds = [0,3];
-CL_bounds = [0,.1];
-muk_bounds = [0,.5];
-mus_times_bounds = [1,2];
-sinit_bounds = [.5,1];
-Random_bounds = [CD_bounds;CL_bounds;muk_bounds;mus_times_bounds;sinit_bounds];
-
-TotalStates = 5;
-StateVects = ME107RollCarMakeNChildren(TotalStates,Random_bounds);
-StateVects = [StateVects;zeros([1,TotalStates])];
-tic;
-% go through the individual state vectors
-for jujube = 1:TotalStates
-    IndividualStateVector = StateVects(1:(end-1),jujube);
-    OldMSE = StateVects(end,jujube); 
-    if OldMSE ~= 0
-        continue
-    end
-    MSE = ME107RollCarGetMSE(IndividualStateVector,Tdata,Xdata,Ydata,TimeStep,m,rw,rg,s_to_x,TrackPosition_s,TrackSlope_s,TrackCurvature_s);
-    StateVects(end,jujube) = MSE;
+% MakeNewStateVects = false;
+if MakeNewStateVects
+    StateVects = ME107RollCarMakeNChildren(TotalStates,Random_bounds);
+    StateVects = [StateVects;zeros([1,TotalStates])];
 end
-fprintf('%d model runs',TotalStates)
-toc;
-fprintf('\n')
-% sort in the fittest models through minimization
-MSEColVect = StateVects(end,:);
-[~,SortedIndices] = sort(MSEColVect);
-disp(StateVects)
-StateVects = StateVects(:,SortedIndices)
+
+MSETrackingVect = zeros([Iterations,1]);
+for tomatoe = 1:Iterations
+    tic;
+    % go through the individual state vectors
+    ModelRuns = TotalStates;
+    for jujube = 1:TotalStates
+        IndividualStateVector = StateVects(1:(end-1),jujube);
+        OldMSE = StateVects(end,jujube); 
+        if OldMSE ~= 0
+            ModelRuns = ModelRuns-1;
+            continue
+        end
+        MSE = ME107RollCarGetMSE(IndividualStateVector,Tdata,Xdata,Ydata,TimeStep,m,rw,rg,s_to_x,TrackPosition_s,TrackSlope_s,TrackCurvature_s);
+        StateVects(end,jujube) = MSE;
+    end
+    fprintf('%d model runs ',ModelRuns)
+    toc;
+    % sort in the fittest models through minimization
+    MSEColVect = StateVects(end,:);
+    [~,SortedIndices] = sort(MSEColVect);
+    StateVects = StateVects(:,SortedIndices);
+    ProducedChildren = [];
+    for orange = 1:Survivors
+        for cherry = 1:(orange-1)
+            Parent1 = StateVects(1:(end-1),orange);
+            Parent2 = StateVects(1:(end-1),cherry);
+            NewChildren = ME107RollCarMakeNChildren(ChilderenPerCouple,[Parent1,Parent2]);
+            appender = zeros([1,ChilderenPerCouple]);
+            ProducedChildren = [ProducedChildren,[NewChildren;appender]];
+         end
+    end
+    RandomChildren = ME107RollCarMakeNChildren(RemainingRandomOffspring,Random_bounds);
+    RandomChildren = [RandomChildren;zeros(1,RemainingRandomOffspring)];
+    ProducedChildren = [ProducedChildren,RandomChildren];
+    StateVects(:,(Survivors+1):end) = ProducedChildren;
+    WinnerMSE = StateVects(end,1);
+    fprintf('Completed iteration number: %d out of %d \n',tomatoe,Iterations)
+    fprintf('Best Error for this iteration: %.6f \n',WinnerMSE)
+    MSETrackingVect(tomatoe) = WinnerMSE;
+end
 
 %% Check the winning configuration
 WinVector = StateVects(1:(end-1),1);
 WinnerMSE = StateVects(end,1);
-fprintf('Winning Vector:\n')
-disp(WinVector)
-fprintf('Winning Configuration Mean Square Error: %d \n', WinnerMSE)
+fprintf('Winning Vector:\n CD: %.4f \n CL: %.4f \n muk: %.4f \n mus: %.4f \n sinit: %.4f \n',WinVector)
+fprintf('Winning Configuration Mean Square Error: %.6f \n', WinnerMSE)
+
+figure()
+plot(MSETrackingVect,'r.')
+title('Best Error vs iteration Number')
+xlabel('Iteration Number')
+ylabel('Mean Square Error')
+
 
 CD = WinVector(1);
 CL = WinVector(2);
@@ -148,19 +191,19 @@ RCDAF = GetRollCarDynamicsFunction(m,rw,rg,mus,muk,CD,CL,TrackPosition_s,TrackSl
 [tsim,xvectsim] = RungeKutta4(RCDAF,[0,Tdata(end)],[sinit;0;0;0],TimeStep);
 ssim = xvectsim(:,1);
 % HYSTERISIS!
-xsim = [];
+xsim = zeros([numel(ssim),1]);
 for apple = 1:numel(ssim) 
-xsim = [xsim; s_to_x(ssim(apple))];
+    xsim(apple) = s_to_x(ssim(apple));
 end
 % HYSTERISIS !
-ysim = [];
+ysim = zeros([numel(ssim),1]);
 for plum = 1:numel(xsim)
-    ysim = [ysim; TrackPosition_s(ssim(plum))];
+    ysim(plum) = TrackPosition_s(ssim(plum));
 end
 xfunction = @(xx) linterp(tsim,xsim,xx);
 yfunction = @(xx) linterp(tsim,ysim,xx);
 
-%MeanSquareError = mean(sqrt((xfunction(Tdata)-Xdata).^2 + (yfunction(Tdata)-Ydata).^2));
+% MeanSquareError = mean(sqrt((xfunction(Tdata)-Xdata).^2 + (yfunction(Tdata)-Ydata).^2));
 
 sdot = xvectsim(:,2);
 thetadot = xvectsim(:,4);
@@ -169,22 +212,23 @@ PotentialEnergy = m*9.81*ysim;
 TotalEnergy = KineticEnergy + PotentialEnergy;
 
 % plot lots of figures to determine if simulation is physical or not
-
 figure();
 hold on;
-plot(KineticEnergy,'r');
-plot(PotentialEnergy,'g');
-plot(TotalEnergy,'b')
+plot(tsim,KineticEnergy,'r');
+plot(tsim,PotentialEnergy,'g');
+plot(tsim,TotalEnergy,'b')
 title('Plots of Energy vs time for simulation')
+xlabel('Time [s]')
+ylabel('Energy [joules]')
 legend('KE','PE','TE','Location','Best')
 
 figure();
 hold on
 plot(Tdata,Xdata,'k-x');
 plot(tsim,xsim,'r--');
-xlabel('Time (s)');
-ylabel('x (m)');
-title('x vs t');
+xlabel('Time [s]');
+ylabel('x [m]');
+title('x vs t Data vs Simulation');
 legend('Data  X Position','Simulation X Position','Location','best')
 set(gca,'FontSize',14);
 
@@ -192,9 +236,9 @@ figure();
 hold on
 plot(Tdata,Ydata,'k-x');
 plot(tsim,ysim,'r--')
-xlabel('Time (s)');
-ylabel('y (m)');
-title('y vs t');
+xlabel('Time [s]');
+ylabel('y [m]');
+title('y vs t Data vs Simulation');
 legend('Data Y Position','Simulation Y Position','Location','best')
 set(gca,'FontSize',14);
 
