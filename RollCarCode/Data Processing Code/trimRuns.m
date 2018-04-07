@@ -12,7 +12,7 @@
 % This function trims the part of the data after which the rollcar fails to
 % pass over the center hill.
 
-function trimmedConfigurations=trimRuns(configurations)
+function trimmedConfigurations=trimRuns(configurations,trim)
     begin_left_hillx=213.9+129.7+180.7+108.8;
     end_right_hillx=108.8;
     
@@ -45,9 +45,21 @@ function trimmedConfigurations=trimRuns(configurations)
     trimmedConfigurations(m).m=configurations(m).m;
     trimmedConfigurations(m).r=configurations(m).r;
     trimmedConfigurations(m).h=configurations(m).h;
+    
+    if trim
+    
     trimmedConfigurations(m).x=xData(1:index-2);
     trimmedConfigurations(m).y=configurations(m).y(1:index-2);
     trimmedConfigurations(m).t=configurations(m).t(1:index-2);
+    
+    else
+        
+    trimmedConfigurations(m).x=xData;
+    trimmedConfigurations(m).y=configurations(m).y;
+    trimmedConfigurations(m).t=configurations(m).t;
+        
+    end
+    
     trimmedConfigurations(m).run=configurations(m).run;
     trimmedConfigurations(m).passes=passes;
     
