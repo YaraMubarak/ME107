@@ -1,0 +1,47 @@
+function averagedConfigurations=averageRuns(combinedConfigurations)
+
+for m=1:length(combinedConfigurations)
+averagedConfigurations(m)=removeRedundantPosition(combinedConfigurations(m));
+end
+
+for m=1:length(combinedConfigurations)
+    
+    averagedConfigurations(m).t={};
+    averagedConfigurations(m).terr={};
+    averagedConfigurations(m).passes=[];
+    
+    current_config=removeRedundantPosition(combinedConfigurations(m));
+        
+    uniquePasses=unique(current_config.passes);
+    
+    for n=1:length(uniquePasses)
+        indices=find(current_config.passes==uniquePasses(n));
+        timeAverages=[];
+        
+        xDataCopy=averagedConfigurations(m).x;
+        yDataCopy=averagedConfigurations(m).y;
+        
+        for p=1:length(indices)
+            timeAverages=[timeAverages; current_config.t{p}];
+        end
+        
+        error=tinv(0.975,current_config.total_runs-1)/...
+            sqrt(current_config.total_runs)*std(timeAverages,1);
+        
+        try
+        averagedConfigurations(m).x{n}=xDataCopy{indices(1)};
+        averagedConfigurations(m).y{n}=yDataCopy{indices(1)};
+        averagedConfigurations(m).x={};
+        averagedConfigurations(m).y={};
+        averagedConfigurations(m).t{n}=mean(timeAverages,1);
+        averagedConfigurations(m).terr{n}=error;
+        averagedConfigurations(m).passes=[averagedConfigurations(m).passes ...
+            uniquePasses(n)];
+        catch Exception
+            disp('');
+        end
+    end
+    
+end
+disp('');
+end
