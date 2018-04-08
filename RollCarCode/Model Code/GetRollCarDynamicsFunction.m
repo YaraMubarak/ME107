@@ -21,7 +21,7 @@ RCDAF = @(t,x) RollCarDynamics(t,x);
     xdot = zeros(4,1);
     xdot(1) = x(2);
     xdot(2) = Fr_et/(m*(1+rg^2/rw^2));
-    xdot(3) = x(4);
+    xdot(3) = x(2)/rw;
     xdot(4) = xdot(2)/rw;
 
     Fn = m*k*x(2)^2 - Fr_en;
@@ -34,9 +34,10 @@ RCDAF = @(t,x) RollCarDynamics(t,x);
         edit = 'nothing'; % better way to do non event?
     else % fundamental equations for case with slip
         % fprintf('Help I am slipping! \n')
-        Ff = -muk*Fn*sign(rw*thetadot-sdot);
+        Ff = muk*Fn*sign(rw*thetadot-sdot);
         xdot(2) = (Fr_et + Ff)/m;
-        xdot(4) = Ff*rw/(m*rg^2);
+        xdot(3) = x(4);
+        xdot(4) = -Ff*rw/(m*rg^2);
         % fprintf('Ff: %f \t Fn: %f \t Fr_et: %f \t Fr_en: %f \t sdot: %f \t sddot: %f \t thetadot: %f \t thetaddot: %f \n',Ff,Fn,Fr_et,Fr_en,sdot,xdot(2),thetadot,xdot(4))
     end
     

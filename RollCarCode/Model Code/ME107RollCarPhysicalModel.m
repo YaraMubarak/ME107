@@ -43,13 +43,15 @@ sinit_bounds = [.4,1];
 Random_bounds = [CD_bounds;CL_bounds;muk_bounds;mus_times_bounds;sinit_bounds];
 
 nuair = 1.524e-6; % m^2/s (kinematic viscosity
-vnom = 5; % m/s
+vnom = 2; % m/s
 rnom = .025; % m
 
 Renom = vnom*rnom/nuair; % nominal reynolds number experienced by wheel
 %% Make functions for the track
-Trackxvals = (1/100)*[5.9,9.9,13.5,17.7,20.2,25,29,32.7,37.6,41,67.2,109.1,151.3,194.5,230.0,281,324,366.1,408.4,451.5,495.9,538.1,581.3,624.2,666.1,698.1];
-Trackyvals = (1/100)*[55.9,52.8,48.7,45.2,41.3,37.7,33.5,29.9,26.6,23.3,9.1,1.1,1.1,1.1,1.1,1.1,6,10,1,1,1,1,1,1,8.2,37];
+% I put phantom x and y values at end to make ramp taller to accept more
+% runs without breaking
+Trackxvals = (1/100)*[5.9,9.9,13.5,17.7,20.2,25,29,32.7,37.6,41,67.2,109.1,151.3,194.5,230.0,281,324,366.1,408.4,451.5,495.9,538.1,581.3,624.2,666.1,698.1,715];
+Trackyvals = (1/100)*[55.9,52.8,48.7,45.2,41.3,37.7,33.5,29.9,26.6,23.3,9.1,1.1,1.1,1.1,1.1,1.1,6,10,1,1,1,1,1,1,8.2,37,60];
 % make polynomial spline
 PiecewisePolynomialSpline = spline(Trackxvals([1,10:end]),Trackyvals([1,10:end]));
 PiecewisePolynomialSplineDerivative = PiecewisePolynomialSpline;
@@ -170,6 +172,7 @@ end
 
 %% Check the winning configuration
 WinVector = StateVects(1:(end-1),1);
+WinVector = [1.5;.05;.1;1.2;0];
 WinnerMSE = StateVects(end,1);
 fprintf('Winning Vector:\n CD: %.4f \n CL: %.4f \n muk: %.4f \n mus: %.4f \n sinit: %.4f \n',WinVector)
 fprintf('Winning Configuration Mean Square Error: %.6f \n', WinnerMSE)
@@ -240,6 +243,28 @@ xlabel('Time [s]');
 ylabel('y [m]');
 title('y vs t Data vs Simulation');
 legend('Data Y Position','Simulation Y Position','Location','best')
+set(gca,'FontSize',14);
+
+figure();
+hold on;
+plot(tsim,sdot,'r--');
+plot(tsim,rw*thetadot,'g--');
+plot(tsim,KineticEnergy,'r');
+plot(tsim,PotentialEnergy,'g');
+plot(tsim,TotalEnergy,'b')
+xlabel('Time [s]');
+ylabel('velocity [m/s]');
+title('v vs t Simulation');
+legend('Simulation Velocity','Location','best')
+set(gca,'FontSize',14);
+
+figure();
+hold on;
+plot(tsim,thetadot,'r--');
+xlabel('Time [s]');
+ylabel('thetadot [rad/s]');
+title('thetadot vs t Simulation');
+legend('Simulation thetadot','Location','best')
 set(gca,'FontSize',14);
 
 % animation to ensure that results "look" right
