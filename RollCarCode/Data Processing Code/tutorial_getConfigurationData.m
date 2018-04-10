@@ -7,8 +7,10 @@ fileFolders={[folder '2x2x2_test_matrix/'],[folder '04-05-18/']};
 configurations_04_05 = getConfigurationData(fileFolders);
 % NOTE: getConfigurationData may take a long time to run.
 %% Processing data.
+clear all;
+load configurations_04_05;
 trim=false;
 trimmedConfigurations_04_05 = trimRuns(configurations_04_05,trim);
 combinedConfigurations_04_05 = combineRuns(trimmedConfigurations_04_05);
 averagedConfigurations_04_05 = averageRuns(combinedConfigurations_04_05);
-save(data_04_05);
+save configurations_04_05_untrimmed;

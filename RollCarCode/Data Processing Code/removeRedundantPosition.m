@@ -22,7 +22,7 @@ function config2=removeRedundantPosition(config1)
             indices_with_current_position=1;
                 
             for q=2:length(rawX)
-                if rawX(q)~=rawX(q-1) && rawY(q)~=rawY(q-1)
+                if rawX(q)~=rawX(q-1) || rawY(q)~=rawY(q-1)
                     uniqueX{n}=[uniqueX{n} rawX(q)];
                     uniqueY{n}=[uniqueY{n} rawY(q)];
                     timeAverage{n}=[timeAverage{n} ...
