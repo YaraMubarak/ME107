@@ -35,6 +35,8 @@ for m=1:length(combinedConfigurations)
         
         averagedConfigurations(m).x{n}=xDataCopy{indices(1)};
         averagedConfigurations(m).y{n}=yDataCopy{indices(1)};
+        averagedConfigurations(m).xerr{n}=0.2*ones(1,length(xDataCopy{indices(1)}));
+        averagedConfigurations(m).yerr{n}=0.2*ones(1,length(yDataCopy{indices(1)}));
 
         averagedConfigurations(m).t{n}=mean(timeAverages,1);
         averagedConfigurations(m).terr{n}=error;

@@ -9,8 +9,8 @@ configurations_04_05 = getConfigurationData(fileFolders);
 %% Processing data.
 clear all;
 load configurations_04_05;
-trim=true;
+trim=false;
 trimmedConfigurations_04_05 = trimRuns(configurations_04_05,trim);
 combinedConfigurations_04_05 = combineRuns(trimmedConfigurations_04_05);
 averagedConfigurations_04_05 = averageRuns(combinedConfigurations_04_05);
-save configurations_04_05_trimmed;
+save configurations_04_05_untrimmed;
