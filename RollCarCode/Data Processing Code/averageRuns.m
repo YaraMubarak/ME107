@@ -27,7 +27,7 @@ for m=1:length(combinedConfigurations)
         timeAverages=[];
         
         for p=1:length(indices)
-            timeAverages=[timeAverages; current_config.t{p}];
+            timeAverages=[timeAverages; current_config.t{indices(p)}];
         end
         
         error=tinv(0.975,length(indices)-1)/...
@@ -42,7 +42,5 @@ for m=1:length(combinedConfigurations)
             uniquePasses(n)];
         averagedConfigurations(m).total_runs(n)=length(indices);
     end
-    
 end
-disp('');
 end

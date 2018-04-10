@@ -11,7 +11,12 @@ function config2=removeRedundantPosition(config1)
     timeAverage=cell(size(config1.t));
     
     uniquePasses=unique(config1.passes);
-    minSizePosArr=zeros(1,length(uniquePasses));
+    pass_index=zeros(1,length(uniquePasses));
+    
+    for n=1:length(uniquePasses)
+        ind=find(config1.passes==uniquePasses(n);
+        
+    end
     
     for n=1:length(config1.passes)
             rawX=config1.x{n};
@@ -44,31 +49,21 @@ function config2=removeRedundantPosition(config1)
     config2.y=uniqueY;
     config2.t=timeAverage;
     
-    for n=1:length(uniquePasses)
-        ind=find(config2.passes==uniquePasses(n));
-        minSizePosArr(n)=length(config2.x{ind(1)});
-        for p=2:length(ind)
-            if length(config2.x{ind(p)})<minSizePosArr(n)
-                minSizePosArr(n)=length(config2.x{ind(p)});
-            end
+    minSizePosArr=length(config2.x{1});
+    for m=2:config2.total_runs
+        if length(config2.x{m})<minSizePosArr
+            minSizePosArr=length(config2.x{m});
         end
     end
     
     for m=1:config2.total_runs
-        index=-1;
-        for p=1:length(uniquePasses)
-            if uniquePasses(p)==config2.passes(m)
-                index=p;
-            end
-        end
-        disp('');
-        config2.x{m}=config2.x{m}(1:minSizePosArr(index));
-        config2.y{m}=config2.y{m}(1:minSizePosArr(index));
-        config2.t{m}=config2.t{m}(1:minSizePosArr(index));
-        config2.xerr=0.2*ones(size(config2.x{m}));
-        config2.yerr=0.2*ones(size(config2.x{m}));
-        config2.terr=zeros(size(config2.x{m}));
+        config2.x{m}=config2.x{m}(1:minSizePosArr);
+        config2.y{m}=config2.y{m}(1:minSizePosArr);
+        config2.t{m}=config2.t{m}(1:minSizePosArr);
     end
     
     
+    config2.xerr=0.2*ones(size(config2.x{m}));
+    config2.yerr=0.2*ones(size(config2.x{m}));
+    config2.terr=zeros(size(config2.x{m}));
 end
