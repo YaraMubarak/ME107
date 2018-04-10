@@ -36,11 +36,11 @@ for count=1:len
         
         figure(2*m-1);
         hold on;
-        errorbar(tData{n},xData{n},xerr,terr{n});
+        errorbar(tData{n},xData{n},xerr{n},terr{n});
         hold off;
         figure(2*m);
         hold on;
-        errorbar(tData{n},yData{n},yerr,terr{n});
+        errorbar(tData{n},yData{n},yerr{n},terr{n});
         hold off;
         legendText{n}=[num2str(passes(n)) ' passes'];
         

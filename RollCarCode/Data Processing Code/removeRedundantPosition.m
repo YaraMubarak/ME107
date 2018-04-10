@@ -65,9 +65,9 @@ function config2=removeRedundantPosition(config1)
         config2.x{m}=config2.x{m}(1:minSizePosArr(index));
         config2.y{m}=config2.y{m}(1:minSizePosArr(index));
         config2.t{m}=config2.t{m}(1:minSizePosArr(index));
-        config2.xerr=0.2*ones(size(config2.x{m}));
-        config2.yerr=0.2*ones(size(config2.x{m}));
-        config2.terr=zeros(size(config2.x{m}));
+        config2.xerr{m}=0.2*ones(size(config2.x{m}));
+        config2.yerr{m}=0.2*ones(size(config2.x{m}));
+        config2.terr{m}=zeros(size(config2.x{m}));
     end
     
     
