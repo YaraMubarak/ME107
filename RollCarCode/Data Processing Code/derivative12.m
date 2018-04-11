@@ -4,8 +4,8 @@ function [deriv1,deriv2]=derivative12(xData,yData)
     
     
     if length(xData)<num_el
-        num_el=length(xData);
-        d=max(1,length(xData)-1);
+        num_el=3;
+        d=2;
     end
     
     deriv1=zeros(size(xData));
