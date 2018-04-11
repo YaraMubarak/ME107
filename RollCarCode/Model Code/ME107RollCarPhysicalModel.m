@@ -50,8 +50,8 @@ Renom = vnom*rnom/nuair; % nominal reynolds number experienced by wheel
 %% Make functions for the track
 % I put phantom x and y values at end to make ramp taller to accept more
 % runs without breaking
-Trackxvals = (1/100)*[5.9,9.9,13.5,17.7,20.2,25,29,32.7,37.6,41,67.2,109.1,151.3,194.5,230.0,281,324,366.1,408.4,451.5,495.9,538.1,581.3,624.2,666.1,698.1,715];
-Trackyvals = (1/100)*[55.9,52.8,48.7,45.2,41.3,37.7,33.5,29.9,26.6,23.3,9.1,1.1,1.1,1.1,1.1,1.1,6,10,1,1,1,1,1,1,8.2,37,60];
+Trackxvals = (1/100)*[5.9,9.9,13.5,17.7,20.2,25,29,32.7,37.6,41,67.2,109.1,151.3,194.5,230.0,281,324,366.1,408.4,451.5,495.9,538.1,581.3,624.2,666.1,698.1,745];
+Trackyvals = (1/100)*[55.9,52.8,48.7,45.2,41.3,37.7,33.5,29.9,26.6,23.3,9.1,1.1,1.1,1.1,1.1,1.1,6,10,1,1,1,1,1,1,8.2,37,100];
 % make polynomial spline
 PiecewisePolynomialSpline = spline(Trackxvals([1,10:end]),Trackyvals([1,10:end]));
 PiecewisePolynomialSplineDerivative = PiecewisePolynomialSpline;
@@ -80,6 +80,7 @@ x_to_s = @(x) linterp(determiners,svals,x);
 
 TrackPosition_s = @(s) TrackPosition(s_to_x(s));
 TrackSlope_s = @(s) TrackSlope(s_to_x(s));
+TrackConcavity_s = @(s) TrackConcavity(s_to_x(s));
 TrackCurvature_s = @(s) TrackCurvature(s_to_x(s));
 
 if PlotTrackThings
@@ -110,10 +111,11 @@ if PlotTrackThings
     title('Track k value as function of x')
 end
 %% Make file pipeline in order to efficiently extract data (not implemented)
-% configs = getConfigurationData(DataFullPath)
-filename = '42_7592_rg_932_3_mass_1_height_run1.xlsx';
-FullFilePath = strcat(DataFullPath,filesep,filename);
+configs = getConfigurationData({[DataFullPath,filesep]})
+% filename = '42_7592_rg_932_3_mass_1_height_run1.xlsx';
+% FullFilePath = strcat(DataFullPath,filesep,filename);
 %% Get Comparison Data
+Pick = 1;
 [Xdata,Ydata,Tdata] = getXY(FullFilePath);
 Xdata = Xdata/100;
 Ydata = Ydata/100;
@@ -141,7 +143,7 @@ for tomatoe = 1:Iterations
             ModelRuns = ModelRuns-1;
             continue
         end
-        MSE = ME107RollCarGetMSE(IndividualStateVector,Tdata,Xdata,Ydata,TimeStep,m,rw,rg,s_to_x,TrackPosition_s,TrackSlope_s,TrackCurvature_s);
+        MSE = ME107RollCarGetMSE(IndividualStateVector,Tdata,Xdata,Ydata,TimeStep,m,rw,rg,s_to_x,TrackPosition_s,TrackSlope_s,TrackConcavity_s,TrackConcavity_s,TrackCurvature_s);
         StateVects(end,jujube) = MSE;
     end
     fprintf('%d model runs ',ModelRuns)
@@ -171,17 +173,28 @@ for tomatoe = 1:Iterations
 end
 
 %% Check the winning configuration
-WinVector = StateVects(1:(end-1),1);
-WinVector = [1.5;.05;.1;1.2;0];
-WinnerMSE = StateVects(end,1);
-fprintf('Winning Vector:\n CD: %.4f \n CL: %.4f \n muk: %.4f \n mus: %.4f \n sinit: %.4f \n',WinVector)
-fprintf('Winning Configuration Mean Square Error: %.6f \n', WinnerMSE)
+%WinVector = StateVects(1:(end-1),1);
+%WinnerMSE = StateVects(end,1);
+%fprintf('Winning Vector:\n CD: %.4f \n CL: %.4f \n muk: %.4f \n mus: %.4f \n sinit: %.4f \n',WinVector)
+%fprintf('Winning Configuration Mean Square Error: %.6f \n', WinnerMSE)
 
-figure()
-plot(MSETrackingVect,'r.')
-title('Best Error vs iteration Number')
-xlabel('Iteration Number')
-ylabel('Mean Square Error')
+% figure()
+% plot(MSETrackingVect,'r.')
+% title('Best Error vs iteration Number')
+% xlabel('Iteration Number')
+% ylabel('Mean Square Error')
+
+TimeStep = 5e-4;
+
+WinVector = [.5;.01;.1;2;.1];
+
+% theta = -.1;
+% 
+% TrackPosition_s = @(x) x*tan(theta);
+% TrackSlope_s = @(x) tan(theta);
+% TrackConcavity_s = @(x) 0;
+% TrackCurvature_s = @(x) 0;
+% s_to_x = @(x) x/cos(theta);
 
 
 CD = WinVector(1);
@@ -190,8 +203,8 @@ muk = WinVector(3);
 mus = muk*WinVector(4);
 sinit = WinVector(5);
 
-RCDAF = GetRollCarDynamicsFunction(m,rw,rg,mus,muk,CD,CL,TrackPosition_s,TrackSlope_s,TrackCurvature_s);
-[tsim,xvectsim] = RungeKutta4(RCDAF,[0,Tdata(end)],[sinit;0;0;0],TimeStep);
+RCDAF = GetRollCarDynamicsFunction(m,rw,rg,mus,muk,CD,CL,TrackPosition_s,TrackSlope_s,TrackConcavity_s,TrackCurvature_s);
+[tsim,xvectsim] = RungeKutta4(RCDAF,[0,2],[sinit;0;0;0],TimeStep);
 ssim = xvectsim(:,1);
 % HYSTERISIS!
 xsim = zeros([numel(ssim),1]);
@@ -206,6 +219,13 @@ end
 xfunction = @(xx) linterp(tsim,xsim,xx);
 yfunction = @(xx) linterp(tsim,ysim,xx);
 
+sddot = zeros([numel(ssim),1]);
+thetaddot = zeros([numel(ssim),1]);
+for jackfruit = 1:size(xvectsim,1)
+    dotvec = RCDAF(tsim(jackfruit),xvectsim(jackfruit,:)');
+    sddot(jackfruit) = dotvec(2);
+    thetaddot(jackfruit) = dotvec(4);
+end
 % MeanSquareError = mean(sqrt((xfunction(Tdata)-Xdata).^2 + (yfunction(Tdata)-Ydata).^2));
 
 sdot = xvectsim(:,2);
@@ -225,46 +245,40 @@ xlabel('Time [s]')
 ylabel('Energy [joules]')
 legend('KE','PE','TE','Location','Best')
 
-figure();
-hold on
-plot(Tdata,Xdata,'k-x');
-plot(tsim,xsim,'r--');
-xlabel('Time [s]');
-ylabel('x [m]');
-title('x vs t Data vs Simulation');
-legend('Data  X Position','Simulation X Position','Location','best')
-set(gca,'FontSize',14);
+% figure();
+% hold on
+% plot(Tdata,Xdata,'k-x');
+% plot(tsim,xsim,'r--');
+% xlabel('Time [s]');
+% ylabel('x [m]');
+% title('x vs t Data vs Simulation');
+% legend('Data  X Position','Simulation X Position','Location','best')
+% set(gca,'FontSize',14);
 
-figure();
-hold on
-plot(Tdata,Ydata,'k-x');
-plot(tsim,ysim,'r--')
-xlabel('Time [s]');
-ylabel('y [m]');
-title('y vs t Data vs Simulation');
-legend('Data Y Position','Simulation Y Position','Location','best')
-set(gca,'FontSize',14);
+% figure();
+% hold on
+% plot(Tdata,Ydata,'k-x');
+% plot(tsim,ysim,'r--')
+% xlabel('Time [s]');
+% ylabel('y [m]');
+% title('y vs t Data vs Simulation');
+% legend('Data Y Position','Simulation Y Position','Location','best')
+% set(gca,'FontSize',14);
 
 figure();
 hold on;
-plot(tsim,sdot,'r--');
-plot(tsim,rw*thetadot,'g--');
-plot(tsim,KineticEnergy,'r');
-plot(tsim,PotentialEnergy,'g');
-plot(tsim,TotalEnergy,'b')
+plot(tsim,sdot,'m');
+plot(tsim,rw*thetadot,'c');
+plot(tsim,sdot-rw*thetadot,'k')
+plot(tsim,KineticEnergy,'r.');
+plot(tsim,PotentialEnergy,'g.');
+plot(tsim,TotalEnergy,'b.')
+plot(tsim,sddot,'r')
+plot(tsim,thetaddot*rw,'b')
 xlabel('Time [s]');
 ylabel('velocity [m/s]');
 title('v vs t Simulation');
-legend('Simulation Velocity','Location','best')
-set(gca,'FontSize',14);
-
-figure();
-hold on;
-plot(tsim,thetadot,'r--');
-xlabel('Time [s]');
-ylabel('thetadot [rad/s]');
-title('thetadot vs t Simulation');
-legend('Simulation thetadot','Location','best')
+legend('sdot','thetadot*rw','vp','KE','PE','TE','sddot','thetaddot','Location','best')
 set(gca,'FontSize',14);
 
 % animation to ensure that results "look" right

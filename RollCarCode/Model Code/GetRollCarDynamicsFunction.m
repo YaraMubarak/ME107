@@ -1,9 +1,17 @@
-function RCDAF = GetRollCarDynamicsFunction(m,rw,rg,mus,muk,CD,CL,TrackPosition_s,TrackSlope_s,TrackCurvature_s)
+function RCDAF = GetRollCarDynamicsFunction(m,rw,rg,mus,muk,CD,CL,TrackPosition_s,TrackSlope_s,TrackConcavity_s,TrackCurvature_s)
 rhoa = 1.275;
 ACS = .1*.0678 +2*.1188*.02;
+CorrectionTime = 5; % (s) decay time constant to correct numerical errors in enforcing no slip
+RollingCorrectionTime = .1;
+velreltol = .01;
+integrator = 0;
+% I'll worry about this control stuff later: for now take it out
 RCDAF = @(t,x) RollCarDynamics(t,x);
 
     function xdot = RollCarDynamics(t,x)
+    slipping = false;
+    control = false;
+        
     s = x(1);
     sdot = x(2);
     theta = x(3);
@@ -11,6 +19,14 @@ RCDAF = @(t,x) RollCarDynamics(t,x);
 
     phi = atan(TrackSlope_s(s));
     k = TrackCurvature_s(s);
+    
+    vp = sdot - thetadot*rw;
+    if abs(vp) > velreltol*max(abs([sdot,thetadot*rw]))
+        slipping = true;
+    end
+
+    
+%     fprintf('t = %.3f vp = %.6f \n',t,vp)
 
     Fr = GetStuff();
 
@@ -21,7 +37,7 @@ RCDAF = @(t,x) RollCarDynamics(t,x);
     xdot = zeros(4,1);
     xdot(1) = x(2);
     xdot(2) = Fr_et/(m*(1+rg^2/rw^2));
-    xdot(3) = x(2)/rw;
+    xdot(3) = xdot(1)/rw;
     xdot(4) = xdot(2)/rw;
 
     Fn = m*k*x(2)^2 - Fr_en;
@@ -29,27 +45,38 @@ RCDAF = @(t,x) RollCarDynamics(t,x);
   
     % fprintf('Ff: %f \t Fn: %f \t Fr_et: %f \t Fr_en: %f \t sdot: %f \t sddot: %f \t thetadot: %f \t thetaddot: %f \n',Ff,Fn,Fr_et,Fr_en,sdot,xdot(2),thetadot,xdot(4))
     
-    StaticMax = mus*Fn;
-    if abs(Ff) <= StaticMax
-        edit = 'nothing'; % better way to do non event?
-    else % fundamental equations for case with slip
-        % fprintf('Help I am slipping! \n')
-        Ff = muk*Fn*sign(rw*thetadot-sdot);
+    StaticMax = abs(mus*Fn); % based on en switching direction can have negative Fn!
+    if abs(Ff) > StaticMax
+        slipping = true;
+    end
+    
+    if slipping % fundamental equations for case with slip
+        %fprintf('t = %.3f Help I am slipping! \n',t)
+        Ff = -abs(muk*Fn)*MyDefinedsgn(vp);
         xdot(2) = (Fr_et + Ff)/m;
         xdot(3) = x(4);
         xdot(4) = -Ff*rw/(m*rg^2);
+    else
+        % Added Numerical Viscosity
+        correction = vp/RollingCorrectionTime;
+        xdot(2) = xdot(2) - correction/m;
+        xdot(4) = xdot(4) + correction*rw/(m*rg^2);
         % fprintf('Ff: %f \t Fn: %f \t Fr_et: %f \t Fr_en: %f \t sdot: %f \t sddot: %f \t thetadot: %f \t thetaddot: %f \n',Ff,Fn,Fr_et,Fr_en,sdot,xdot(2),thetadot,xdot(4))
     end
     
     % to be removed checks wether energy conserved
-    KineticEnergy = .5*m*sdot^2 + .5*m*rg^2*thetadot^2;
-    PotentialEnergy = m*9.81*TrackPosition_s(s);
-    TotalEnergy = KineticEnergy + PotentialEnergy;
+%     KineticEnergy = .5*m*sdot^2 + .5*m*rg^2*thetadot^2;
+%     PotentialEnergy = m*9.81*TrackPosition_s(s);
+%     TotalEnergy = KineticEnergy + PotentialEnergy;
     % fprintf('t: %f \t KE: %d \t PE: %d \t TE: %d \n',t,KineticEnergy,PotentialEnergy,TotalEnergy);
     
         function Fr = GetStuff()
-            Faero = .5*ACS*rhoa*sdot^2*[-sign(sdot)*CD,CL];     
-            Fg = -9.81*m*[sin(phi),cos(phi)];
+            Faero = .5*ACS*rhoa*sdot^2*[-MyDefinedsgn(sdot)*CD,CL];
+            et = [1;TrackSlope_s(s)]/sqrt(1+TrackSlope_s(s)^2);
+            en = MyDefinedsgn(TrackConcavity_s(s))*[-TrackSlope_s(s);1]/sqrt(1+TrackSlope_s(s)^2);
+            Fg_et = dot([0,-1],et);
+            Fg_en = dot([0,-1],en);
+            Fg = 9.81*m*[Fg_et,Fg_en];
             Fr = Fg + Faero;
         end % GetStuff
     end % RollCarDynamics
