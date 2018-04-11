@@ -1,12 +1,13 @@
 function MeanSquareError = ME107RollCarGetMSE(vector,Tdata,Xdata,Ydata,TimeStep,m,rw,rg,s_to_x,TrackPosition_s,TrackSlope_s,TrackConcavity_s,TrackCurvature_s)
 
 CD = vector(1);
-CL = vector(2);
-muk = vector(3);
-mus = muk*vector(4);
-sinit = vector(5);
+CRF = vector(2);
+IDK = vector(3);
+muk = vector(4);
+mus = muk*vector(5);
+sinit = vector(6);
 
-RCDAF = GetRollCarDynamicsFunction(m,rw,rg,mus,muk,CD,CL,TrackPosition_s,TrackSlope_s,TrackConcavity_s,TrackCurvature_s);
+RCDAF = GetRollCarDynamicsFunction(m,rw,rg,mus,muk,CD,CRF,IDK,TrackPosition_s,TrackSlope_s,TrackConcavity_s,TrackCurvature_s);
 
 [tsim,xvectsim] = RungeKutta4(RCDAF,[0,Tdata(end)],[sinit;0;0;0],TimeStep);
 ssim = xvectsim(:,1);
