@@ -1,4 +1,4 @@
-function []=plotAveragedConfigurationsPosition(averagedConfigurations,config_parameter)
+function []=plotAveragedConfigurationsPosition(averagedConfigurations,config_parameter,save)
 
     if isempty(config_parameter)
         len=length(averagedConfigurations);
@@ -53,12 +53,16 @@ for count=1:len
     ylabel('X position (cm)');
     legend(legendText,'Location','best');    
     set(gca,'FontSize',14);
+    
+    if save
+    
     saveas(gcf,...
         ['/Users/UmColin/Documents/SHARED/6Sp18/6ME107/Roll Car/Github/ME107/RollCarCode/Graphs/Position/' ...
         'X_M' strrep(num2str(mass),'.','_') 'R_g' ...
             strrep(num2str(r),'.','_') 'Height' ...
             strrep(num2str(height),'.','_')],'jpg');
 
+    end
         
     figure(2*m);
     title(['Mass ' num2str(mass) ' g, ' 'R_g ' ...
@@ -68,11 +72,16 @@ for count=1:len
     ylabel('X position (cm)');
     legend(legendText,'Location','best');
     set(gca,'FontSize',14);
+    
+    if save
+    
     saveas(gcf,...
         ['/Users/UmColin/Documents/SHARED/6Sp18/6ME107/Roll Car/Github/ME107/RollCarCode/Graphs/Position/' ...
         'Y_M' strrep(num2str(mass),'.','_') 'R_g' ...
             strrep(num2str(r),'.','_') 'Height' ...
             strrep(num2str(height),'.','_')],'jpg');
+        
+    end
        
 end
 end

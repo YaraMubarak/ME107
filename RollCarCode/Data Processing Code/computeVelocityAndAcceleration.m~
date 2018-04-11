@@ -1,0 +1,14 @@
+function config_with_v_a=computeVelocityAndAcceleration(averagedConfigurations)
+    config_with_v_a=averagedConfigurations;
+    for m=1:length(averagedConfigurations)
+        for n=1:length(
+        config_with_v_a.vx;
+        config_with_v_a.vy;
+        config_with_v_a.ax;
+        config_with_v_a.ay;
+        
+        v_err;
+        a_err;
+        end
+    end
+end
