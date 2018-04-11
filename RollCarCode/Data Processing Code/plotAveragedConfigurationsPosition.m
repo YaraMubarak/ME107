@@ -28,6 +28,11 @@ for count=1:len
     tData=averagedConfigurations(m).t;
     terr=averagedConfigurations(m).terr;
     
+    vxData=averagedConfigurations(m).vx;
+    vyData=averagedConfigurations(m).vy;
+    axData=averagedConfigurations(m).ax;
+    ayData=averagedConfigurations(m).ay;
+    
     legendText=cell(1,length(passes));
     for n=1:length(passes)
         if isnan(terr{n})
@@ -37,6 +42,7 @@ for count=1:len
         figure(2*m-1);
         hold on;
         errorbar(tData{n},xData{n},-xerr{n},xerr{n},-terr{n},terr{n});
+        
         hold off;
         figure(2*m);
         hold on;
