@@ -22,7 +22,7 @@ DataFullPath = strcat(GitRepositoryPath,filesep,ProjectFolder,filesep,DataFolder
 addpath(DataFullPath,DataCodeFullPath)
 %% Things Requiring changeing
 PlotTrackThings = false;
-MakeNewStateVects = true;
+MakeNewStateVects = false;
 
 TimeStep = 5e-4; % this fairly critical, if much larger will miss tol and oscilate never reaching no slip cond.
 
@@ -124,10 +124,13 @@ Ydata = config.y{1}/100;
 Tdata = config.t{1};
 m = config.m/1000;
 rg = config.r/1000;
-s_init_calculated = .1 + s_to_x(Xdata(1));
+
 
 
 %% verify the final result with lots of graphs
+m = .9323; % kg
+rw = .1188; % m
+rg = .0427592; % m (uncalculated guestimate)
 
 % MakeNewStateVects = false;
 if MakeNewStateVects

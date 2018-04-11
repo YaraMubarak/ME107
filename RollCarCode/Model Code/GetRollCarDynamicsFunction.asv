@@ -22,7 +22,7 @@ RCDAF = @(t,x) RollCarDynamics(t,x);
     end
 
     
-    fprintf('t = %.3f vp = %.6f \n',t,vp)
+%     fprintf('t = %.3f vp = %.6f \n',t,vp)
 
     Fr = GetStuff();
 
