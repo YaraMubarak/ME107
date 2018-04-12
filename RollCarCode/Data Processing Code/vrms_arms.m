@@ -1,6 +1,7 @@
 %in this code I will try to calculate the rms velocity
-load configurations_04_05_trimmed_v_and_a.mat
-temp = configurations_04_05_v_and_a
+clear all;
+load configurations_04_05_trimmed_v_and_a.mat;
+temp = configurations_04_05_v_and_a;
 for i = 1:length(temp)
     if length(temp(i).vx)==1 %if statement because there is some with more than 1 pass
     ax = temp(i).vx{1,:};

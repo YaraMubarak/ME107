@@ -11,7 +11,7 @@ switch ComputerOwner
     case 'Patrick'
         GitRepositoryPath = 'C:\Users\pcarl\Documents\College Things\ME 107\Roll Car\Github Code Repository';
     case 'Colin'
-        GitRepositoryPath = '';
+        GitRepositoryPath = '/Users/UmColin/Documents/SHARED/6Sp18/6ME107/Roll Car/Github/ME107';
     otherwise
         error('ME107RollCarPhysicsModel: ComputerOwner name %s not found in Possible options.Please add your options to the list',ComputerOwner) 
 end
@@ -118,7 +118,7 @@ end
 %% Get Comparison Data
 load configurations_04_05_untrimmed;
 Pick = 1;
-config = averagedConfigurations_04_05(pick);
+config = averagedConfigurations_04_05(Pick);
 Xdata = config.x{1}/100;
 Ydata = config.y{1}/100;
 Tdata = config.t{1};
