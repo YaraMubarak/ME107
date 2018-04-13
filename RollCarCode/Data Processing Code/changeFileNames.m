@@ -16,6 +16,8 @@ for m=1:length(folderPath)
         r_new=[];
         m_new=[];
         
+        found=true;
+        %{
             if r_old==43.807 && m_old==508.2
                 r_new=44.2322;
                 m_new=785.7;
@@ -35,6 +37,22 @@ for m=1:length(folderPath)
                 r_new=39.9655;
                 m_new=1836.3;
             end
+        %}
+        
+        if r_old==38.6288 && m_old==988.1
+                r_new=45.3632;
+                m_new=716.5;
+            elseif r_old==39.6986 && m_old==1892.1
+                r_new=43.2141;
+                m_new=1892.1;
+            elseif r_old==39.9655 && m_old==1836.3
+                r_new=43.2954;
+                m_new=1564.7;
+        else
+            found=false;
+        end
+        
+        if found
         
         r_new_str=strrep(num2str(r_new),'.','_');
         m_new_str=strrep(num2str(m_new),'.','_');
@@ -48,6 +66,7 @@ for m=1:length(folderPath)
     
         disp(['Changed ' matchingFilesXLSX(n).name ' to:' new_str_xlsx]);
         
+        end
     end
 end
 end
