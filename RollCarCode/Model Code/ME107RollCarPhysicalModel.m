@@ -7,6 +7,7 @@ ComputerOwner = 'Patrick';
 ProjectFolder = 'RollCarCode';
 DataFolder = strcat('Data',filesep,'2x2x2_test_matrix');
 DataCodeFolder = 'Data Processing Code';
+SaveFolder = 'Saved Labels';
 switch ComputerOwner
     case 'Patrick'
         GitRepositoryPath = 'C:\Users\pcarl\Documents\College Things\ME 107\Roll Car\Github Code Repository';
@@ -26,8 +27,8 @@ MakeNewStateVects = true;
 
 TimeStep = 5e-4; % this fairly critical, if much larger will miss tol and oscilate never reaching no slip cond.
 
-Iterations = 1;
-TotalStates = 20;
+Iterations = 10;
+TotalStates = 50;
 Survivors = 3;
 ChilderenPerCouple = 2;
 RemainingRandomOffspring = TotalStates - Survivors - ChilderenPerCouple*(Survivors-1)*Survivors/2;
@@ -37,10 +38,10 @@ end
 
 CD_bounds = [0,3];
 CRF_bounds = [0,.05];
-IDK_bounds = [0,.75];
-muk_bounds = [0,.5];
+IDK_bounds = [0,.05];
+muk_bounds = [.05,.25];
 mus_times_bounds = [1,2];
-sinit_bounds = [0,.8];
+sinit_bounds = [.1,.6];
 Random_bounds = [CD_bounds;CRF_bounds;IDK_bounds;muk_bounds;mus_times_bounds;sinit_bounds];
 
 nuair = 1.524e-6; % m^2/s (kinematic viscosity
@@ -118,13 +119,38 @@ end
 %% Get Comparison Data
 load configurations_04_05_untrimmed;
 Pick = 1;
-config = averagedConfigurations_04_05(pick);
+config = averagedConfigurations_04_05(Pick);
 Xdata = config.x{1}/100;
 Ydata = config.y{1}/100;
 Tdata = config.t{1};
 m = config.m/1000;
 rg = config.r/1000;
 s_init_calculated = .1 + s_to_x(Xdata(1));
+rw = .11882; % from solid works model
+Passes = config.passes;
+DropHeight = config.h;
+
+switch DropHeight
+    case 1
+        SinitCalc = x_to_s(.55);
+    case 2
+        SinitCalc = x_to_s(.50);
+    case 4
+        SinitCalc = x_to_s(.408);
+    case 5
+        SinitCalc = x_to_s(.366);
+    case 6
+        SinitCalc = x_to_s(.322);
+    case 8
+        SinitCalc = x_to_s(.244);
+    case 10
+        SinitCalc = x_to_s(.178);
+    otherwise
+        error('Drop Height %d Not in list of options. calculate the offset',DropHeight)
+end
+disp(SinitCalc)
+
+    
 
 
 %% verify the final result with lots of graphs
@@ -147,7 +173,7 @@ for tomatoe = 1:Iterations
             ModelRuns = ModelRuns-1;
             continue
         end
-        MSE = ME107RollCarGetMSE(IndividualStateVector,Tdata,Xdata,Ydata,TimeStep,m,rw,rg,s_to_x,TrackPosition_s,TrackSlope_s,TrackConcavity_s,TrackConcavity_s,TrackCurvature_s);
+        MSE = ME107RollCarGetMSE(IndividualStateVector,Tdata,Xdata,Ydata,TimeStep,m,rw,rg,s_to_x,TrackPosition_s,TrackSlope_s,TrackConcavity_s,TrackCurvature_s);
         StateVects(end,jujube) = MSE;
     end
     fprintf('%d model runs ',ModelRuns)
@@ -175,22 +201,25 @@ for tomatoe = 1:Iterations
     fprintf('Best Error for this iteration: %.6f \n',WinnerMSE)
     MSETrackingVect(tomatoe) = WinnerMSE;
 end
-
+%% Save the winning Configuration Data
+Survivors = StateVects(:,1:3);
+thingname = sprintf('Survivors_m_%.4f_rg_%.6f_h_%d.mat',m,rg,DropHeight);
+Savepath = strcat(GitRepositoryPath,filesep,ProjectFolder,filesep,SaveFolder,filesep,thingname);
+save(Savepath,'Survivors')
 %% Check the winning configuration
-%WinVector = StateVects(1:(end-1),1);
-%WinnerMSE = StateVects(end,1);
-%fprintf('Winning Vector:\n CD: %.4f \n CL: %.4f \n muk: %.4f \n mus: %.4f \n sinit: %.4f \n',WinVector)
-%fprintf('Winning Configuration Mean Square Error: %.6f \n', WinnerMSE)
-
+% WinVector = StateVects(1:(end-1),1);
+% WinnerMSE = StateVects(end,1);
+% fprintf('Winning Vector:\n CD: %.4f \n CL: %.4f \n muk: %.4f \n mus: %.4f \n sinit: %.4f \n',WinVector)
+% fprintf('Winning Configuration Mean Square Error: %.6f \n', WinnerMSE)
+% 
 % figure()
 % plot(MSETrackingVect,'r.')
 % title('Best Error vs iteration Number')
 % xlabel('Iteration Number')
 % ylabel('Mean Square Error')
 
-TimeStep = 5e-4;
 
-WinVector = [.5;.01;.5;.1;2;.1];
+
 
 % theta = -.1;
 % 
@@ -200,6 +229,7 @@ WinVector = [.5;.01;.5;.1;2;.1];
 % TrackCurvature_s = @(x) 0;
 % s_to_x = @(x) x/cos(theta);
 
+WinVector = [.47;.003;.003;.1;2;SinitCalc];
 
 CD = WinVector(1);
 CRF = WinVector(2);
@@ -209,7 +239,7 @@ mus = muk*WinVector(5);
 sinit = WinVector(6);
 
 RCDAF = GetRollCarDynamicsFunction(m,rw,rg,mus,muk,CD,CRF,IDK,TrackPosition_s,TrackSlope_s,TrackConcavity_s,TrackCurvature_s);
-[tsim,xvectsim] = RungeKutta4(RCDAF,[0,10],[sinit;0;0;0],TimeStep);
+[tsim,xvectsim] = RungeKutta4(RCDAF,[0,Tdata(end)],[sinit;0;0;0],TimeStep);
 ssim = xvectsim(:,1);
 % HYSTERISIS!
 xsim = zeros([numel(ssim),1]);
@@ -250,25 +280,25 @@ xlabel('Time [s]')
 ylabel('Energy [joules]')
 legend('KE','PE','TE','Location','Best')
 
-% figure();
-% hold on
-% plot(Tdata,Xdata,'k-x');
-% plot(tsim,xsim,'r--');
-% xlabel('Time [s]');
-% ylabel('x [m]');
-% title('x vs t Data vs Simulation');
-% legend('Data  X Position','Simulation X Position','Location','best')
-% set(gca,'FontSize',14);
+figure();
+hold on
+plot(Tdata,Xdata,'k-x');
+plot(tsim,xsim,'r--');
+xlabel('Time [s]');
+ylabel('x [m]');
+title('x vs t Data vs Simulation');
+legend('Data  X Position','Simulation X Position','Location','best')
+set(gca,'FontSize',14);
 
-% figure();
-% hold on
-% plot(Tdata,Ydata,'k-x');
-% plot(tsim,ysim,'r--')
-% xlabel('Time [s]');
-% ylabel('y [m]');
-% title('y vs t Data vs Simulation');
-% legend('Data Y Position','Simulation Y Position','Location','best')
-% set(gca,'FontSize',14);
+figure();
+hold on
+plot(Tdata,Ydata,'k-x');
+plot(tsim,ysim,'r--')
+xlabel('Time [s]');
+ylabel('y [m]');
+title('y vs t Data vs Simulation');
+legend('Data Y Position','Simulation Y Position','Location','best')
+set(gca,'FontSize',14);
 
 figure();
 hold on;
