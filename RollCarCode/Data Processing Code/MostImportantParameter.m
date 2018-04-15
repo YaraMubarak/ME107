@@ -24,6 +24,53 @@ for m=1:length(h_actual)
     h_actual(m)=drop_height(h_ID(m));
 end
 
+%% Determining the most important parameter using data from 4/5.
+
+load configurations_04_05_trimmed;
+
+drop_height=[23.3,26.6,29.9,33.5,37.7,41.3,45.2,48.7,52.8,55.9]; % cm
+passes=[];
+mass=[];
+r=[];
+h_ID=[];
+
+for m=1:length(combinedConfigurations_04_05)
+    passes=[passes combinedConfigurations_04_05(m).passes];
+    for n=1:combinedConfigurations_04_05(m).total_runs
+        mass=[mass combinedConfigurations_04_05(m).m];
+        r=[r combinedConfigurations_04_05(m).r];
+        h_ID=[h_ID combinedConfigurations_04_05(m).h];
+    end
+end
+
+h_actual=zeros(size(h_ID));
+for m=1:length(h_actual)
+    h_actual(m)=drop_height(h_ID(m));
+end
+%% Determining the most important parameter using data from 4/12.
+
+load configurations_04_12_trimmed;
+
+drop_height=[23.3,26.6,29.9,33.5,37.7,41.3,45.2,48.7,52.8,55.9]; % cm
+passes=[];
+mass=[];
+r=[];
+h_ID=[];
+
+for m=1:length(combinedConfigurations_04_12)
+    passes=[passes combinedConfigurations_04_12(m).passes];
+    for n=1:combinedConfigurations_04_12(m).total_runs
+        mass=[mass combinedConfigurations_04_12(m).m];
+        r=[r combinedConfigurations_04_12(m).r];
+        h_ID=[h_ID combinedConfigurations_04_12(m).h];
+    end
+end
+
+h_actual=zeros(size(h_ID));
+for m=1:length(h_actual)
+    h_actual(m)=drop_height(h_ID(m));
+end
+
 %% Figure 1: passes vs m
 
 figure(1);

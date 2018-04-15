@@ -63,7 +63,7 @@ function combinedConfigurations=combineRuns(trimmedConfigurations)
         combinedConfigurations(index).y=yData;
         combinedConfigurations(index).yerr=yErr; % Error in ruler
         combinedConfigurations(index).t=tData;
-        combinedConfigurations(index).terr=tErr; % Essentially 0
+        combinedConfigurations(index).terr=tErr; 
         combinedConfigurations(index).passes=pass_array;
         combinedConfigurations(index).total_runs=length(repeats);
         
