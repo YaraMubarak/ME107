@@ -5,6 +5,7 @@ folder='C:\Users\pcarl\Documents\College Things\ME 107\Roll Car\Github Code Repo
 folder='/Users/UmColin/Documents/SHARED/6Sp18/6ME107/Roll Car/Github/ME107/RollCarCode/Data/';
 fileFolders={[folder '2x2x2_test_matrix/'],[folder '04-05-18/']};
 configurations_04_05 = getConfigurationData(fileFolders);
+save configurations_04_05;
 % NOTE: getConfigurationData may take a long time to run.
 %% Processing data.
 clear all;

@@ -2,7 +2,7 @@
 % This function plots the number of passes against the roll car mass, the
 % radius of gyration, and the drop height to determine which parameter is
 % the most important.
-load combinedConfigurations_03_22;
+load configurations_03_22_trimmed;
 
 drop_height=[23.3,26.6,29.9,33.5,37.7,41.3,45.2,48.7,52.8,55.9]; % cm
 passes=[];

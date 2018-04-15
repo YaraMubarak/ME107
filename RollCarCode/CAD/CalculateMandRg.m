@@ -34,5 +34,5 @@ for i = 1:n
     M = C{in,1}{1,2}+M;
 end
     m = M
-    rg = I./M
+    rg = sqrt(I./M)
 end

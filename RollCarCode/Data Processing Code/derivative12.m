@@ -2,6 +2,12 @@ function [deriv1,deriv2]=derivative12(xData,yData)
     d=3;
     num_el=10;
     
+    
+    if length(xData)<num_el
+        num_el=3;
+        d=2;
+    end
+    
     deriv1=zeros(size(xData));
     deriv2=zeros(size(yData));
     for m=1:length(xData)-num_el+1 
@@ -15,4 +21,5 @@ function [deriv1,deriv2]=derivative12(xData,yData)
         end
         m=m+num_el-1;
     end
+    
 end
