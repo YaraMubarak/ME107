@@ -48,7 +48,7 @@ for m=1:length(h_actual)
     h_actual(m)=drop_height(h_ID(m));
 end
 %% Determining the most important parameter using data from 4/12.
-
+clear all;
 load configurations_04_12_trimmed;
 
 drop_height=[23.3,26.6,29.9,33.5,37.7,41.3,45.2,48.7,52.8,55.9]; % cm
@@ -97,7 +97,7 @@ a=annotation('textbox',[.2 .8 .1 .1],'String',['N = ' num2str(mass_coeff(1),3) .
     num2str(m_p_mdl.Rsquared.Ordinary,3)]);
 set(a,'FontSize',14);
 
-saveas(gcf,'/Users/UmColin/Documents/SHARED/6Sp18/6ME107/Roll Car/Github/ME107/RollCarCode/Graphs/MostImportantParameter/m_passes.jpg');
+saveas(gcf,'/Users/UmColin/Documents/SHARED/6Sp18/6ME107/Roll Car/Github/ME107/RollCarCode/Graphs/MostImportantParameter/m_passes_04_12.jpg');
 %% Figure 2: passes vs r_g
 
 figure(2);
@@ -124,7 +124,7 @@ a=annotation('textbox',[.2 .8 .1 .1],'String',['N = ' num2str(r_coeff(1),3) ...
     num2str(r_p_mdl.Rsquared.Ordinary,3)]);
 set(a,'FontSize',14);
 
-saveas(gcf,'/Users/UmColin/Documents/SHARED/6Sp18/6ME107/Roll Car/Github/ME107/RollCarCode/Graphs/MostImportantParameter/r_passes.jpg');
+saveas(gcf,'/Users/UmColin/Documents/SHARED/6Sp18/6ME107/Roll Car/Github/ME107/RollCarCode/Graphs/MostImportantParameter/r_passes_04_12.jpg');
 %% Figure 3: passes vs h_actual
 
 figure(3);
@@ -151,4 +151,4 @@ a=annotation('textbox',[.2 .8 .1 .1],'String',['N = ' num2str(h_actual_coeff(1),
     num2str(h_actual_p_mdl.Rsquared.Ordinary,3)]);
 set(a,'FontSize',14);
 
-saveas(gcf,'/Users/UmColin/Documents/SHARED/6Sp18/6ME107/Roll Car/Github/ME107/RollCarCode/Graphs/MostImportantParameter/h_actual_passes.jpg');
+saveas(gcf,'/Users/UmColin/Documents/SHARED/6Sp18/6ME107/Roll Car/Github/ME107/RollCarCode/Graphs/MostImportantParameter/h_actual_passes_04_12.jpg');

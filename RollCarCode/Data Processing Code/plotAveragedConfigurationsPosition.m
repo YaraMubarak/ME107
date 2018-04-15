@@ -7,7 +7,7 @@ function []=plotAveragedConfigurationsPosition(averagedConfigurations,config_par
     end
 
 drop_height=[23.3,26.6,29.9,33.5,37.7,41.3,45.2,48.7,52.8,55.9]; % cm
-for count=1:3
+for count=1:len
     
     if ~isempty(config_parameter)
             m=find([averagedConfigurations.m]==config_parameter(count).m & ...
@@ -24,9 +24,11 @@ for count=1:3
     xData=averagedConfigurations(m).x;
     xerr=averagedConfigurations(m).xerr;
     vxerr=averagedConfigurations(m).vx_err;
+    axerr=averagedConfigurations(m).ax_err;
     yData=averagedConfigurations(m).y;
     yerr=averagedConfigurations(m).yerr;
     vyerr=averagedConfigurations(m).vy_err;
+    ayerr=averagedConfigurations(m).ay_err;
     tData=averagedConfigurations(m).t;
     terr=averagedConfigurations(m).terr;
     
@@ -46,19 +48,19 @@ for count=1:3
         errorbar(tData{n},xData{n},-xerr{n},xerr{n},-terr{n},terr{n});
         figure(6*m-4);
         hold on;
-        errorbar(tData{n},vxData{n},-xerr{n},xerr{n},-terr{n},terr{n});
+        errorbar(tData{n},vxData{n},-vxerr{n},vxerr{n},-terr{n},terr{n});
         figure(6*m-3);
         hold on;
-        errorbar(tData{n},axData{n},-xerr{n},xerr{n},-terr{n},terr{n});
+        errorbar(tData{n},axData{n},-axerr{n},axerr{n},-terr{n},terr{n});
         figure(6*m-2);
         hold on;
         errorbar(tData{n},yData{n},-yerr{n},yerr{n},-terr{n},terr{n});
         figure(6*m-1);
         hold on;
-        errorbar(tData{n},vyData{n},-yerr{n},yerr{n},-terr{n},terr{n});
+        errorbar(tData{n},vyData{n},-vyerr{n},vyerr{n},-terr{n},terr{n});
         figure(6*m);
         hold on;
-        errorbar(tData{n},ayData{n},-yerr{n},yerr{n},-terr{n},terr{n});
+        errorbar(tData{n},ayData{n},-ayerr{n},ayerr{n},-terr{n},terr{n});
         legendText{n}=[num2str(passes(n)) ' passes'];
         
     end
