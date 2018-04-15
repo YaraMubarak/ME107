@@ -24,8 +24,8 @@ ysim = zeros([numel(ssim),1]);
 for plum = 1:numel(xsim)
     ysim(plum) = TrackPosition_s(ssim(plum));
 end
-xfunction = @(xx) linterp(tsim,xsim,xx);
-yfunction = @(xx) linterp(tsim,ysim,xx);
+xfunction = @(xx) interp1(tsim,xsim,xx,'pchip');
+yfunction = @(xx) interp1(tsim,ysim,xx,'pchip');
 
 % Because dividing by number of passes need to edit data to not have values
 % outside of what was simulated!
