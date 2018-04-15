@@ -7,7 +7,7 @@ function []=plotAveragedConfigurationsPosition(averagedConfigurations,config_par
     end
 
 drop_height=[23.3,26.6,29.9,33.5,37.7,41.3,45.2,48.7,52.8,55.9]; % cm
-for count=1:len
+for count=1:3
     
     if ~isempty(config_parameter)
             m=find([averagedConfigurations.m]==config_parameter(count).m & ...
@@ -23,8 +23,10 @@ for count=1:len
     height=drop_height(averagedConfigurations(m).h);
     xData=averagedConfigurations(m).x;
     xerr=averagedConfigurations(m).xerr;
+    vxerr=averagedConfigurations(m).vx_err;
     yData=averagedConfigurations(m).y;
     yerr=averagedConfigurations(m).yerr;
+    vyerr=averagedConfigurations(m).vy_err;
     tData=averagedConfigurations(m).t;
     terr=averagedConfigurations(m).terr;
     
