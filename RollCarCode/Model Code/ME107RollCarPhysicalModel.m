@@ -2,8 +2,8 @@ clear all; close all;
 %% Things Requiring changeing
 % implemented owners names = 'Patrick','Colin'
 % put in your own filepath and add your name to the list
-ComputerOwner = 'Patrick';
-ConfigPick = 8;
+ComputerOwner = 'Jay';
+ConfigPick = 9;
 
 PlotTrackThings = false;
 MakeNewStateVects = true;
@@ -51,6 +51,8 @@ switch ComputerOwner
         GitRepositoryPath = 'C:\Users\pcarl\Documents\College Things\ME 107\Roll Car\Github Code Repository';
     case 'Colin'
         GitRepositoryPath = '/Users/UmColin/Documents/SHARED/6Sp18/6ME107/Roll Car/Github/ME107';
+    case 'Jay'
+        GitRepositoryPath = 'C:\Users\Jay\Documents\ME107';
     otherwise
         error('ME107RollCarPhysicsModel: ComputerOwner name %s not found in Possible options.Please add your options to the list',ComputerOwner) 
 end
@@ -87,8 +89,8 @@ for guava = 2:numDeterminers
 end
 svals = cumsum(svals);
 
-s_to_x = @(s) linterp(svals,determiners,s);
-x_to_s = @(x) linterp(determiners,svals,x);
+s_to_x = @(s) interp1(svals,determiners,s,'pchip');
+x_to_s = @(x) interp1(determiners,svals,x,'pchip');
 
 TrackPosition_s = @(s) TrackPosition(s_to_x(s));
 TrackSlope_s = @(s) TrackSlope(s_to_x(s));
