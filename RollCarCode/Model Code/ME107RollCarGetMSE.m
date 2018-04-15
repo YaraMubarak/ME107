@@ -9,7 +9,7 @@ sinit = vector(6);
 
 RCDAF = GetRollCarDynamicsFunction(m,rw,rg,mus,muk,CD,CRF,IDK,TrackPosition_s,TrackSlope_s,TrackConcavity_s,TrackCurvature_s);
 
-[tsim,xvectsim] = RungeKutta4(RCDAF,[0,Tdata(end)/Passes],[sinit;0;0;0],TimeStep);
+[tsim,xvectsim] = RungeKutta4(RCDAF,[0,Tdata(end)],[sinit;0;0;0],TimeStep);
 ssim = xvectsim(:,1);
 % ! there is hysterisis in the call to s_to_x so this dumnb thing is
 % required. have no clue as to cause fo hysterisis, perhapse how code was

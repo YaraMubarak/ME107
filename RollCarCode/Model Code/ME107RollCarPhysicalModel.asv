@@ -252,7 +252,7 @@ ylabel('Mean Square Error')
 
 CD = WinVector(1);
 CRF = WinVector(2);
-IDK = WinVector(3)*.5;
+IDK = WinVector(3);
 muk = WinVector(4);
 mus = muk*WinVector(5);
 sinit = WinVector(6);
@@ -281,7 +281,7 @@ for jackfruit = 1:size(xvectsim,1)
     thetaddot(jackfruit) = dotvec(4);
 end
 MeanSquareError = mean(sqrt((xfunction(Tdata)-Xdata).^2 + (yfunction(Tdata)-Ydata).^2));
-fprintf('Full Run MSE: %.6f \n',MeanSquareError)
+fprintf('Full Run MSE: %.6f',MeanSquareError)
 
 sdot = xvectsim(:,2);
 thetadot = xvectsim(:,4);
