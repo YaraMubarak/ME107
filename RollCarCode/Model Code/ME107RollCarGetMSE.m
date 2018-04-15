@@ -1,4 +1,4 @@
-function MeanSquareError = ME107RollCarGetMSE(vector,Tdata,Xdata,Ydata,TimeStep,m,rw,rg,s_to_x,TrackPosition_s,TrackSlope_s,TrackConcavity_s,TrackCurvature_s)
+function MeanSquareError = ME107RollCarGetMSE(vector,Tdata,Xdata,Ydata,TimeStep,m,rw,rg,s_to_x,TrackPosition_s,TrackSlope_s,TrackConcavity_s,TrackCurvature_s,Passes)
 
 CD = vector(1);
 CRF = vector(2);
@@ -9,7 +9,7 @@ sinit = vector(6);
 
 RCDAF = GetRollCarDynamicsFunction(m,rw,rg,mus,muk,CD,CRF,IDK,TrackPosition_s,TrackSlope_s,TrackConcavity_s,TrackCurvature_s);
 
-[tsim,xvectsim] = RungeKutta4(RCDAF,[0,Tdata(end)],[sinit;0;0;0],TimeStep);
+[tsim,xvectsim] = RungeKutta4(RCDAF,[0,Tdata(end)/Passes],[sinit;0;0;0],TimeStep);
 ssim = xvectsim(:,1);
 % ! there is hysterisis in the call to s_to_x so this dumnb thing is
 % required. have no clue as to cause fo hysterisis, perhapse how code was
@@ -26,6 +26,13 @@ for plum = 1:numel(xsim)
 end
 xfunction = @(xx) linterp(tsim,xsim,xx);
 yfunction = @(xx) linterp(tsim,ysim,xx);
+
+% Because dividing by number of passes need to edit data to not have values
+% outside of what was simulated!
+Acceptable = Tdata <= Tdata(end)/Passes;
+Tdata = Tdata(Acceptable);
+Xdata = Xdata(Acceptable);
+Ydata = Ydata(Acceptable);
 
 MeanSquareError = mean(sqrt((xfunction(Tdata)-Xdata).^2 + (yfunction(Tdata)-Ydata).^2));
 fprintf('Mean Square Error: %.6f \n', MeanSquareError)

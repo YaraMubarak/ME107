@@ -105,7 +105,7 @@ function [X,Y,T]=getXY(fileName)
            
            X(1) = 17.8;
            Y(1) = 43.04;      
-     end
+    end
    
    for m=1:length(runTime)
        sensorReadings=runTimeData(m,2:end);

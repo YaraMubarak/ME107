@@ -1,9 +1,47 @@
 clear all; close all;
-%% file path things!
+%% Things Requiring changeing
 % implemented owners names = 'Patrick','Colin'
-% put in your own and add your name to the list
+% put in your own filepath and add your name to the list
 ComputerOwner = 'Patrick';
+ConfigPick = 8;
 
+PlotTrackThings = false;
+MakeNewStateVects = true;
+
+TimeStep = 5e-4; % this fairly critical, if much larger will miss tol and oscilate never reaching no slip cond.
+
+Iterations = 15;
+TotalStates = 30;
+Survivors = 3;
+ChilderenPerCouple = 2;
+RemainingRandomOffspring = TotalStates - Survivors - ChilderenPerCouple*(Survivors-1)*Survivors/2;
+if RemainingRandomOffspring < 1
+    error('To many survivors for Total number of states')
+end
+
+CD_bounds = [0,3];
+CRF_bounds = [0,.05];
+IDK_bounds = [0,.1];
+muk_bounds = [.05,.25];
+mus_times_bounds = [1,2];
+sinit_bounds = [.1,.6];
+DeltaS = .05;
+Random_bounds = [CD_bounds;CRF_bounds;IDK_bounds;muk_bounds;mus_times_bounds;sinit_bounds];
+
+MutCD_bounds = [-.01,.01];
+MutCRF_bounds = [-.001,.001];
+MutIDK_bounds = [-.01,.01];
+Mutmuk_bounds = [-.001,.001];
+Mutmus_times_bounds = [-.01,.01];
+Mutsinit_bounds = [-.02,.02];
+MutRandom_bounds = [MutCD_bounds;MutCRF_bounds;MutIDK_bounds;Mutmuk_bounds;Mutmus_times_bounds;Mutsinit_bounds];
+
+nuair = 1.524e-6; % m^2/s (kinematic viscosity)
+vnom = 2; % m/s
+rnom = .025; % m
+
+Renom = vnom*rnom/nuair; % nominal reynolds number experienced by wheel
+%% file path things!
 ProjectFolder = 'RollCarCode';
 DataFolder = strcat('Data',filesep,'2x2x2_test_matrix');
 DataCodeFolder = 'Data Processing Code';
@@ -21,34 +59,6 @@ DataCodeFullPath = strcat(GitRepositoryPath,filesep,ProjectFolder,filesep,DataCo
 DataFullPath = strcat(GitRepositoryPath,filesep,ProjectFolder,filesep,DataFolder);
 
 addpath(DataFullPath,DataCodeFullPath)
-%% Things Requiring changeing
-PlotTrackThings = false;
-MakeNewStateVects = true;
-
-TimeStep = 5e-4; % this fairly critical, if much larger will miss tol and oscilate never reaching no slip cond.
-
-Iterations = 10;
-TotalStates = 50;
-Survivors = 3;
-ChilderenPerCouple = 2;
-RemainingRandomOffspring = TotalStates - Survivors - ChilderenPerCouple*(Survivors-1)*Survivors/2;
-if RemainingRandomOffspring < 1
-    error('To many survivors for Total number of states')
-end
-
-CD_bounds = [0,3];
-CRF_bounds = [0,.05];
-IDK_bounds = [0,.05];
-muk_bounds = [.05,.25];
-mus_times_bounds = [1,2];
-sinit_bounds = [.1,.6];
-Random_bounds = [CD_bounds;CRF_bounds;IDK_bounds;muk_bounds;mus_times_bounds;sinit_bounds];
-
-nuair = 1.524e-6; % m^2/s (kinematic viscosity
-vnom = 2; % m/s
-rnom = .025; % m
-
-Renom = vnom*rnom/nuair; % nominal reynolds number experienced by wheel
 %% Make functions for the track
 % I put phantom x and y values at end to make ramp taller to accept more
 % runs without breaking
@@ -117,15 +127,14 @@ end
 % filename = '42_7592_rg_932_3_mass_1_height_run1.xlsx';
 % FullFilePath = strcat(DataFullPath,filesep,filename);
 %% Get Comparison Data
-load configurations_04_05_untrimmed;
-Pick = 1;
-config = averagedConfigurations_04_05(Pick);
+load configurations_04_12_untrimmed;
+
+config = averagedConfigurations_04_12(ConfigPick);
 Xdata = config.x{1}/100;
 Ydata = config.y{1}/100;
 Tdata = config.t{1};
 m = config.m/1000;
 rg = config.r/1000;
-s_init_calculated = .1 + s_to_x(Xdata(1));
 rw = .11882; % from solid works model
 Passes = config.passes;
 DropHeight = config.h;
@@ -148,9 +157,8 @@ switch DropHeight
     otherwise
         error('Drop Height %d Not in list of options. calculate the offset',DropHeight)
 end
-disp(SinitCalc)
 
-    
+Random_bounds(6,:) = [SinitCalc-DeltaS,SinitCalc+DeltaS];
 
 
 %% verify the final result with lots of graphs
@@ -173,11 +181,12 @@ for tomatoe = 1:Iterations
             ModelRuns = ModelRuns-1;
             continue
         end
-        MSE = ME107RollCarGetMSE(IndividualStateVector,Tdata,Xdata,Ydata,TimeStep,m,rw,rg,s_to_x,TrackPosition_s,TrackSlope_s,TrackConcavity_s,TrackCurvature_s);
+        MSE = ME107RollCarGetMSE(IndividualStateVector,Tdata,Xdata,Ydata,TimeStep,m,rw,rg,s_to_x,TrackPosition_s,TrackSlope_s,TrackConcavity_s,TrackCurvature_s,Passes);
         StateVects(end,jujube) = MSE;
     end
-    fprintf('%d model runs ',ModelRuns)
-    toc;
+    endtime = toc;
+    fprintf('%d model runs elapsed time: %.3f Seconds \n',ModelRuns,endtime)
+    fprintf('Average time per run: %.2f Seconds \n',endtime/ModelRuns)
     % sort in the fittest models through minimization
     MSEColVect = StateVects(end,:);
     [~,SortedIndices] = sort(MSEColVect);
@@ -188,6 +197,19 @@ for tomatoe = 1:Iterations
             Parent1 = StateVects(1:(end-1),orange);
             Parent2 = StateVects(1:(end-1),cherry);
             NewChildren = ME107RollCarMakeNChildren(ChilderenPerCouple,[Parent1,Parent2]);
+            % adding mutatation to childeren so that they can 'crawl'
+            % towards the correct answer instead of clumping
+            NewMutagen = ME107RollCarMakeNChildren(ChilderenPerCouple,MutRandom_bounds);
+            NewChildren = NewChildren + NewMutagen;
+            % This line forces the new childeren to still obey the random
+            % limits, shouldnt be an issue as hopefully not pushing the
+            % limits, but does make code robust to unphysical numbers
+            for ChildNum = 1:ChilderenPerCouple
+                BelowLim = NewChildren(:,ChildNum) < Random_bounds(:,1);
+                AboveLim = NewChildren(:,ChildNum) > Random_bounds(:,2);
+                NewChildren(BelowLim,ChildNum) = Random_bounds(BelowLim,1);
+                NewChildren(AboveLim,ChildNum) = Random_bounds(AboveLim,2);
+            end
             appender = zeros([1,ChilderenPerCouple]);
             ProducedChildren = [ProducedChildren,[NewChildren;appender]];
          end
@@ -207,19 +229,16 @@ thingname = sprintf('Survivors_m_%.4f_rg_%.6f_h_%d.mat',m,rg,DropHeight);
 Savepath = strcat(GitRepositoryPath,filesep,ProjectFolder,filesep,SaveFolder,filesep,thingname);
 save(Savepath,'Survivors')
 %% Check the winning configuration
-% WinVector = StateVects(1:(end-1),1);
-% WinnerMSE = StateVects(end,1);
-% fprintf('Winning Vector:\n CD: %.4f \n CL: %.4f \n muk: %.4f \n mus: %.4f \n sinit: %.4f \n',WinVector)
-% fprintf('Winning Configuration Mean Square Error: %.6f \n', WinnerMSE)
-% 
-% figure()
-% plot(MSETrackingVect,'r.')
-% title('Best Error vs iteration Number')
-% xlabel('Iteration Number')
-% ylabel('Mean Square Error')
+WinVector = StateVects(1:(end-1),1);
+WinnerMSE = StateVects(end,1);
+fprintf('Winning Vector:\n CD:\t %.4f \n CRF:\t %.5f \n IDK:\t %.5f \n muk:\t %.4f \n musF:\t %.4f \n sinit:\t %.4f \n',WinVector)
+fprintf('Winning Configuration Mean Square Error: %.6f \n', WinnerMSE)
 
-
-
+figure()
+plot(MSETrackingVect,'r.')
+title('Best Error vs iteration Number')
+xlabel('Iteration Number')
+ylabel('Mean Square Error')
 
 % theta = -.1;
 % 
@@ -229,7 +248,7 @@ save(Savepath,'Survivors')
 % TrackCurvature_s = @(x) 0;
 % s_to_x = @(x) x/cos(theta);
 
-WinVector = [.47;.003;.003;.1;2;SinitCalc];
+% WinVector = [.47;.003;.003;.1;2;SinitCalc];
 
 CD = WinVector(1);
 CRF = WinVector(2);
@@ -311,22 +330,23 @@ plot(tsim,TotalEnergy,'b.')
 plot(tsim,sddot,'r')
 plot(tsim,thetaddot*rw,'b')
 xlabel('Time [s]');
-ylabel('velocity [m/s]');
-title('v vs t Simulation');
+ylabel('Different Things');
+title('Lots of stuff graph');
 legend('sdot','thetadot*rw','vp','KE','PE','TE','sddot','thetaddot','Location','best')
 set(gca,'FontSize',14);
 
-% animation to ensure that results "look" right
-pause(1)
-% figure()
-% for index = 1:numel(tsim)
-%     plot(interppoints,TrackPosition(interppoints),'r')
-%     hold on
-%     plot(xsim(index),ysim(index),'go')
-%     hold off
-%     pause(.001)
-% end
-% disp('Graphics are done')
+% % % animation to ensure that results "look" right
+% % pause(1)
+% % figure()
+% % interppoints = linspace(Trackxvals(1),Trackxvals(end),2000);
+% % for index = 1:10:numel(tsim)
+% %     plot(interppoints,TrackPosition(interppoints),'r')
+% %     hold on
+% %     plot(xsim(index),ysim(index),'go')
+% %     hold off
+% %     pause(.001)
+% % end
+% % disp('Graphics are done')
 
 
 
