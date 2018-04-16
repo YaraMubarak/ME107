@@ -12,7 +12,6 @@ save configurations_04_12;
 clear all;
 load configurations_04_12;
 trim=false;
-<<<<<<< HEAD
 trimmedConfigurations_04_05 = trimRuns(configurations_04_05,trim);
 combinedConfigurations_04_05 = combineRuns(trimmedConfigurations_04_05);
 averagedConfigurations_04_05 = averageRuns(combinedConfigurations_04_05);
@@ -40,10 +39,9 @@ clear all;
 load configurations_04_12_trimmed;
 configurations_04_12_trimmed_v_and_a=computeVelocityAndAcceleration(averagedConfigurations_04_12);
 save configurations_04_12_trimmed_v_and_a;
-=======
+%%
 trimmedConfigurations_04_12 = trimRuns(configurations_04_12,trim);
 combinedConfigurations_04_12 = combineRuns(trimmedConfigurations_04_12);
 averagedConfigurations_04_12 = averageRuns(combinedConfigurations_04_12);
 save('configurations_04_12_untrimmed','averagedConfigurations_04_12');
-disp('It is Finished')
->>>>>>> a6d801e2f0b6e40fce41ea3cdda0fcc279bec080
+disp('It is Finished');cs

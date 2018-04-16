@@ -6,13 +6,14 @@ function config_with_v_a=computeVelocityAndAcceleration(averagedConfigurations)
             t=averagedConfigurations(m).t{n};
             x=averagedConfigurations(m).x{n};
             y=averagedConfigurations(m).y{n};
-            [vx,ax]=derivative12(t,x);
+            terr=averagedConfigurations(m).terr{n};
+            [vx,u_vx,ax,u_ax]=derivative12_spline(t,terr,x);
             config_with_v_a(m).vx{n}=vx;
             config_with_v_a(m).ax{n}=ax;
-            [vy,ay]=derivative12(t,y);
+            [vy,u_vy,ay,u_ay]=derivative12_spline(t,terr,y);
             config_with_v_a(m).vy{n}=vy;
             config_with_v_a(m).ay{n}=ay;
-            
+            %{
             terr=averagedConfigurations(m).terr{n};
             
             delta_x=diff(x);
@@ -49,6 +50,7 @@ function config_with_v_a=computeVelocityAndAcceleration(averagedConfigurations)
                 (u_delta_vx./delta_t).^2);
             u_ay=sqrt((delta_vy./delta_t.^2.*u_delta_t).^2+...
                 (u_delta_vy./delta_t).^2);
+            %}
             
             config_with_v_a(m).vx_err{n}=u_vx;
             config_with_v_a(m).vy_err{n}=u_vy;

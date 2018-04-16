@@ -1,0 +1,250 @@
+%% Effect of Mass on X and Y using data from 04/12.
+clear all;
+load configurations_04_12_trimmed_v_and_a;
+configs=configurations_04_12_trimmed_v_and_a;
+values=[configs.m];
+
+%% Effect of Rg on X and Y using data from 04/12.
+
+clear all;
+load configurations_04_12_trimmed_v_and_a;
+configs=configurations_04_12_trimmed_v_and_a;
+values=[configs.r];
+
+%% Effect of H on X and Y using data from 04/12.
+
+clear all;
+load configurations_04_12_trimmed_v_and_a;
+configs=configurations_04_12_trimmed_v_and_a;
+values=[configs.h];
+
+for m=1:length(values)
+    values(m)=convertHeightSR(values(m));
+end
+
+
+%% Plotting
+close all;
+type='r_g'; % Change this.
+ylabelText='r_g (mm)'; % Changes this.
+
+saveFig=false;
+baseText=['Effect of ' type ' on '];
+
+        figure(1);
+        hold on;
+        for m=1:length(configs)
+            terr=configs(m).terr{1};
+            t=configs(m).t{1};
+            val=values(m)*ones(size(configs(m).t{1}));
+            x=configs(m).x{1};
+            %inBetweenT=[t-terr, fliplr(t+terr)];
+            %inBetweenX=[x, fliplr(x)];
+            %inBetweenMass=[val, fliplr(val)];
+            %fill3(inBetweenT,inBetweenMass,inBetweenX,rand);
+            plot3(t,val,x);
+            xlabel('Time (s)');
+            ylabel(ylabelText);
+            zlabel('X position (cm)');
+            title([baseText ' X Position']);
+            set(gca,'FontSize',14);
+            grid on;
+        end
+        
+        figure(2);
+        hold on;
+        for m=1:length(configs)
+            terr=configs(m).terr{1};
+            t=configs(m).t{1};
+            val=values(m)*ones(size(configs(m).t{1}));
+            y=configs(m).y{1};
+            %inBetweenT=[t-terr, fliplr(t+terr)];
+            %inBetweenY=[y, fliplr(y)];
+            %inBetweenMass=[val, fliplr(val)];
+            %fill3(inBetweenT,inBetweenMass,inBetweenY,rand);
+            plot3(t,val,y);
+            xlabel('Time (s)');
+            ylabel(ylabelText);
+            zlabel('Y position (cm)');
+            title([baseText ' Y Position']);
+            set(gca,'FontSize',14);
+            grid on;
+        end
+        
+        figure(3);
+        hold on;
+        for m=1:length(configs)
+            terr=configs(m).terr{1};
+            t=configs(m).t{1};
+            val=values(m)*ones(size(configs(m).t{1}));
+            vx=configs(m).vx{1};
+            vx_err=configs(m).vx_err{1};
+            vx_err=vx_err.*(vx_err<=50);
+            %inBetweenT=[t-terr, fliplr(t+terr)];
+            %inBetweenVx=[vx-vx_err, fliplr(vx+vx_err)];
+            %inBetweenMass=[val, fliplr(val)];
+            %fill3(inBetweenT,inBetweenMass,inBetweenVx,rand);
+            plot3(t,val,vx);
+            xlabel('Time (s)');
+            ylabel(ylabelText);
+            zlabel('X Velocity (cm/s)');
+            title([baseText ' X Velocity']);
+            set(gca,'FontSize',14);
+            grid on;
+        end
+        
+        figure(4);
+        hold on;
+        for m=1:length(configs)
+            terr=configs(m).terr{1};
+            t=configs(m).t{1};
+            val=values(m)*ones(size(configs(m).t{1}));
+            vy=configs(m).vy{1};
+            vy_err=configs(m).vy_err{1};
+            vy_err=vy_err.*(vy_err<=50);
+            %inBetweenT=[t-terr, fliplr(t+terr)];
+            %inBetweenVy=[vy-vy_err, fliplr(vy+vy_err)];
+            %inBetweenMass=[val, fliplr(val)];
+            %fill3(inBetweenT,inBetweenMass,inBetweenVy,rand);
+            plot3(t,val,vy);
+            xlabel('Time (s)');
+            ylabel(ylabelText);
+            zlabel('Y Velocity (cm/s)');
+            title([baseText ' Y Velocity']);
+            set(gca,'FontSize',14);
+            grid on;
+        end
+        
+        figure(5);
+        hold on;
+        for m=1:length(configs)
+            terr=configs(m).terr{1};
+            t=configs(m).t{1};
+            val=values(m)*ones(size(configs(m).t{1}));
+            ax=configs(m).ax{1};
+            ax_err=configs(m).ax_err{1};
+            ax_err=ax_err.*(ax_err<=50);
+            %inBetweenT=[t-terr, fliplr(t+terr)];
+            %inBetweenAx=[ax-ax_err, fliplr(ax+ax_err)];
+            %inBetweenMass=[val, fliplr(val)];
+            %fill3(inBetweenT,inBetweenMass,inBetweenAx,rand);
+            plot3(t,val,ax);
+            xlabel('Time (s)');
+            ylabel(ylabelText);
+            zlabel('X Acceleration (cm/s^2)');
+            title([baseText ' X Acceleration']);
+            set(gca,'FontSize',14);
+            grid on;
+        end
+        
+        figure(6);
+        hold on;
+        for m=1:length(configs)
+            terr=configs(m).terr{1};
+            t=configs(m).t{1};
+            val=values(m)*ones(size(configs(m).t{1}));
+            ay=configs(m).ay{1};
+            ay_err=configs(m).ay_err{1};
+            ay_err=ay_err.*(ay_err<=50);
+            %inBetweenT=[t-terr, fliplr(t+terr)];
+            %inBetweenAy=[ay-ay_err, fliplr(ay+ay_err)];
+            %inBetweenMass=[val, fliplr(val)];
+            %fill3(inBetweenT,inBetweenMass,inBetweenAy,rand);
+            plot3(t,val,ay);
+            xlabel('Time (s)');
+            ylabel(ylabelText);
+            zlabel('Y Acceleration (cm/s^2)');
+            title([baseText ' Y Acceleration']);
+            set(gca,'FontSize',14);
+            grid on;
+        end
+        
+        
+        figure(7);
+        hold on;
+        for m=1:length(configs)
+            terr=configs(m).terr{1};
+            if ~isnan(terr)
+            t=configs(m).t{1};
+            val=values(m)*ones(size(configs(m).t{1}));
+            plot3(t,val,terr);
+            xlabel('Time (s)');
+            ylabel(ylabelText);
+            zlabel('Error in the time (s)');
+            title([baseText ' Error in Time']);
+            set(gca,'FontSize',14);
+            grid on;
+            end
+        end
+        
+        figure(8);
+        hold on;
+        for m=1:length(configs)
+            terr=configs(m).terr{1};
+            t=configs(m).t{1};
+            val=values(m)*ones(size(configs(m).t{1}));
+            vx_err=configs(m).vx_err{1};
+            if ~isnan(vx_err)
+            plot3(t,val,vx_err);
+            xlabel('Time (s)');
+            ylabel(ylabelText);
+            zlabel('Error in the X Velocity (cm/s)');
+            title([baseText ' Error in X Velocity']);
+            set(gca,'FontSize',14);
+            grid on;
+            end
+        end
+        
+        figure(9);
+        hold on;
+        for m=1:length(configs)
+            terr=configs(m).terr{1};
+            t=configs(m).t{1};
+            val=values(m)*ones(size(configs(m).t{1}));
+            vy_err=configs(m).vy_err{1};
+            if ~isnan(vy_err)
+            plot3(t,val,vy_err);
+            xlabel('Time (s)');
+            ylabel(ylabelText);
+            zlabel('Error in the Y Velocity (cm/s)');
+            title([baseText ' Error in Y Velocity']);
+            set(gca,'FontSize',14);
+            grid on;
+            end
+        end
+        
+        figure(10);
+        hold on;
+        for m=1:length(configs)
+            terr=configs(m).terr{1};
+            t=configs(m).t{1};
+            val=values(m)*ones(size(configs(m).t{1}));
+            ax_err=configs(m).ax_err{1};
+            if ~isnan(ax_err)
+            plot3(t,val,ax_err);
+            xlabel('Time (s)');
+            ylabel(ylabelText);
+            zlabel('Error in the X Acceleration (cm/s^2)');
+            title([baseText ' Error in X Acceleration']);
+            set(gca,'FontSize',14);
+            grid on;
+            end
+        end
+        
+        figure(11);
+        hold on;
+        for m=1:length(configs)
+            terr=configs(m).terr{1};
+            t=configs(m).t{1};
+            val=values(m)*ones(size(configs(m).t{1}));
+            ay_err=configs(m).ay_err{1};
+            if ~isnan(ay_err)
+            plot3(t,val,ay_err);
+            xlabel('Time (s)');
+            ylabel(ylabelText);
+            zlabel('Error in the Y Acceleration (cm/s^2)');
+            title([baseText ' Error in Y Acceleration']);
+            set(gca,'FontSize',14);
+            grid on;
+            end
+        end
