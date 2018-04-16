@@ -34,14 +34,9 @@ baseText=['Effect of ' type ' on '];
         figure(1);
         hold on;
         for m=1:length(configs)
-            terr=configs(m).terr{1};
             t=configs(m).t{1};
             val=values(m)*ones(size(configs(m).t{1}));
             x=configs(m).x{1};
-            %inBetweenT=[t-terr, fliplr(t+terr)];
-            %inBetweenX=[x, fliplr(x)];
-            %inBetweenMass=[val, fliplr(val)];
-            %fill3(inBetweenT,inBetweenMass,inBetweenX,rand);
             plot3(t,val,x);
             xlabel('Time (s)');
             ylabel(ylabelText);
@@ -54,14 +49,9 @@ baseText=['Effect of ' type ' on '];
         figure(2);
         hold on;
         for m=1:length(configs)
-            terr=configs(m).terr{1};
             t=configs(m).t{1};
             val=values(m)*ones(size(configs(m).t{1}));
             y=configs(m).y{1};
-            %inBetweenT=[t-terr, fliplr(t+terr)];
-            %inBetweenY=[y, fliplr(y)];
-            %inBetweenMass=[val, fliplr(val)];
-            %fill3(inBetweenT,inBetweenMass,inBetweenY,rand);
             plot3(t,val,y);
             xlabel('Time (s)');
             ylabel(ylabelText);
@@ -73,25 +63,25 @@ baseText=['Effect of ' type ' on '];
         
         figure(3);
         hold on;
+        v_err=[];
         for m=1:length(configs)
-            terr=configs(m).terr{1};
             t=configs(m).t{1};
             val=values(m)*ones(size(configs(m).t{1}));
             vx=configs(m).vx{1};
+            vy=configs(m).vy{1};
             vx_err=configs(m).vx_err{1};
-            vx_err=vx_err.*(vx_err<=50);
-            %inBetweenT=[t-terr, fliplr(t+terr)];
-            %inBetweenVx=[vx-vx_err, fliplr(vx+vx_err)];
-            %inBetweenMass=[val, fliplr(val)];
-            %fill3(inBetweenT,inBetweenMass,inBetweenVx,rand);
-            plot3(t,val,vx);
+            vy_err=configs(m).vy_err{1};
+            v_err=[v_err sqrt(vx_err.^2+vy_err.^2)];
+            plot3(t,val,sqrt(vx.^2+vy.^2));
             xlabel('Time (s)');
             ylabel(ylabelText);
-            zlabel('X Velocity (cm/s)');
-            title([baseText ' X Velocity']);
+            zlabel('Velocity Magnitude (cm/s)');
+            title([baseText ' Velocity Magnitude']);
             set(gca,'FontSize',14);
             grid on;
         end
+        v_err_mean=mean(v_err);
+        %plot3([0,0],[0 0],[0 2*v_err_mean]);
         
         figure(4);
         hold on;
@@ -99,68 +89,20 @@ baseText=['Effect of ' type ' on '];
             terr=configs(m).terr{1};
             t=configs(m).t{1};
             val=values(m)*ones(size(configs(m).t{1}));
-            vy=configs(m).vy{1};
-            vy_err=configs(m).vy_err{1};
-            vy_err=vy_err.*(vy_err<=50);
-            %inBetweenT=[t-terr, fliplr(t+terr)];
-            %inBetweenVy=[vy-vy_err, fliplr(vy+vy_err)];
-            %inBetweenMass=[val, fliplr(val)];
-            %fill3(inBetweenT,inBetweenMass,inBetweenVy,rand);
-            plot3(t,val,vy);
-            xlabel('Time (s)');
-            ylabel(ylabelText);
-            zlabel('Y Velocity (cm/s)');
-            title([baseText ' Y Velocity']);
-            set(gca,'FontSize',14);
-            grid on;
-        end
-        
-        figure(5);
-        hold on;
-        for m=1:length(configs)
-            terr=configs(m).terr{1};
-            t=configs(m).t{1};
-            val=values(m)*ones(size(configs(m).t{1}));
             ax=configs(m).ax{1};
-            ax_err=configs(m).ax_err{1};
-            ax_err=ax_err.*(ax_err<=50);
-            %inBetweenT=[t-terr, fliplr(t+terr)];
-            %inBetweenAx=[ax-ax_err, fliplr(ax+ax_err)];
-            %inBetweenMass=[val, fliplr(val)];
-            %fill3(inBetweenT,inBetweenMass,inBetweenAx,rand);
-            plot3(t,val,ax);
-            xlabel('Time (s)');
-            ylabel(ylabelText);
-            zlabel('X Acceleration (cm/s^2)');
-            title([baseText ' X Acceleration']);
-            set(gca,'FontSize',14);
-            grid on;
-        end
-        
-        figure(6);
-        hold on;
-        for m=1:length(configs)
-            terr=configs(m).terr{1};
-            t=configs(m).t{1};
-            val=values(m)*ones(size(configs(m).t{1}));
             ay=configs(m).ay{1};
-            ay_err=configs(m).ay_err{1};
-            ay_err=ay_err.*(ay_err<=50);
-            %inBetweenT=[t-terr, fliplr(t+terr)];
-            %inBetweenAy=[ay-ay_err, fliplr(ay+ay_err)];
-            %inBetweenMass=[val, fliplr(val)];
-            %fill3(inBetweenT,inBetweenMass,inBetweenAy,rand);
-            plot3(t,val,ay);
+            plot3(t,val,sqrt(ax.^2+ay.^2));
             xlabel('Time (s)');
             ylabel(ylabelText);
-            zlabel('Y Acceleration (cm/s^2)');
-            title([baseText ' Y Acceleration']);
+            zlabel('Acceleration Magnitude (cm/s^2)');
+            title([baseText ' Acceleration Magnitude']);
             set(gca,'FontSize',14);
+            
             grid on;
         end
         
-        
-        figure(7);
+        %{
+        figure(5);
         hold on;
         for m=1:length(configs)
             terr=configs(m).terr{1};
@@ -177,7 +119,7 @@ baseText=['Effect of ' type ' on '];
             end
         end
         
-        figure(8);
+        figure(6);
         hold on;
         for m=1:length(configs)
             terr=configs(m).terr{1};
@@ -248,3 +190,4 @@ baseText=['Effect of ' type ' on '];
             grid on;
             end
         end
+        %}
