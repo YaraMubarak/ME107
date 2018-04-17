@@ -3,9 +3,12 @@ clear all; close all;clc;
 % implemented owners names = 'Patrick','Colin', 'Jay'
 % put in your own filepath and add your name to the list
 ComputerOwner = 'Patrick';
-ConfigPick = 9;
+ConfigPick = 1;
+fprintf('Begining Configuration number: %i \n',ConfigPick)
 
 PlotTrackThings = false;
+MakeNewStartGuess = true;
+TotalStates = 2;
 
 TimeStep = 5e-4; % this fairly critical, if much larger will miss tol and oscilate never reaching no slip cond.
 
@@ -136,12 +139,36 @@ switch DropHeight
 end
 
 Random_bounds(6,:) = [SinitCalc-DeltaS,SinitCalc+DeltaS];
-StartGuess(6) = SinitCalc;
+%% Random sweep to get starting vector
+if MakeNewStartGuess
+    StateVects = ME107RollCarMakeNChildren(TotalStates,Random_bounds);
+    StateVects = [StateVects;zeros([1,TotalStates])];
+
+    tic;
+    % go through the individual state vectors
+    ModelRuns = TotalStates;
+    for jujube = 1:TotalStates
+        IndividualStateVector = StateVects(1:(end-1),jujube);
+        OldMSE = StateVects(end,jujube); 
+        MSE = ME107RollCarGetMSE(IndividualStateVector,Tdata,Xdata,Ydata,TimeStep,m,rw,rg,s_to_x,TrackPosition_s,TrackSlope_s,TrackConcavity_s,TrackCurvature_s,Passes);
+        StateVects(end,jujube) = MSE;
+    end
+    endtime = toc;
+    fprintf('%d model runs elapsed time: %.3f Seconds \n',ModelRuns,endtime)
+    fprintf('Average time per run: %.2f Seconds \n',endtime/ModelRuns)
+    % sort in the fittest models through minimization
+    MSEColVect = StateVects(end,:);
+    [~,SortedIndices] = sort(MSEColVect);
+    StateVects = StateVects(:,SortedIndices);
+    
+    StartGuess = StateVects(1:(end-1),1);
+end
+
 
 %% Optimize the crap out of things
 OptFunc = @(vector) ME107RollCarMLOptMSE(vector,Tdata,Xdata,Ydata,TimeStep,m,rw,rg,s_to_x,TrackPosition_s,TrackSlope_s,TrackConcavity_s,TrackCurvature_s,Passes);
 tic;
-[WinVector,resnorm] = lsqnonlin(OptFunc,WinVector',Random_bounds(:,1),Random_bounds(:,2));
+[WinVector,resnorm] = lsqnonlin(OptFunc,StartGuess,Random_bounds(:,1),Random_bounds(:,2));
 fprintf('Matlab Optimization')
 toc;
 
