@@ -3,7 +3,7 @@ clear all; close all;clc;
 % implemented owners names = 'Patrick','Colin','Jay'
 % put in your own filepath and add your name to the list
 ComputerOwner = 'Patrick';
-ConfigPick = 1;
+ConfigPicks = [1,2,3,4,5];
 fprintf('Begining Configuration number: %i \n',ConfigPick)
 
 PlotTrackThings = false;
