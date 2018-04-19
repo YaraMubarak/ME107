@@ -1,6 +1,6 @@
 clear all; close all;clc;
 %% Things Requiring changeing
-% implemented owners names = 'Patrick','Colin', 'Jay'
+% implemented owners names = 'Patrick','Colin','Jay'
 % put in your own filepath and add your name to the list
 ComputerOwner = 'Patrick';
 ConfigPick = 1;
@@ -8,7 +8,7 @@ fprintf('Begining Configuration number: %i \n',ConfigPick)
 
 PlotTrackThings = false;
 MakeNewStartGuess = true;
-TotalStates = 2;
+TotalStates = 50;
 
 TimeStep = 5e-4; % this fairly critical, if much larger will miss tol and oscilate never reaching no slip cond.
 
@@ -108,165 +108,172 @@ end
 
 %% Get Comparison Data
 load configurations_04_12_untrimmed;
+for ConfigPick = ConfigPicks
+    config = averagedConfigurations_04_12(ConfigPick);
+    Xdata = config.x{1}/100;
+    Ydata = config.y{1}/100;
+    Tdata = config.t{1};
+    m = config.m/1000;
+    rg = config.r/1000;
+    rw = .11882; % from solid works model
+    Passes = config.passes;
+    DropHeight = config.h;
 
-config = averagedConfigurations_04_12(ConfigPick);
-Xdata = config.x{1}/100;
-Ydata = config.y{1}/100;
-Tdata = config.t{1};
-m = config.m/1000;
-rg = config.r/1000;
-rw = .11882; % from solid works model
-Passes = config.passes;
-DropHeight = config.h;
-
-switch DropHeight
-    case 1
-        SinitCalc = x_to_s(.55);
-    case 2
-        SinitCalc = x_to_s(.50);
-    case 4
-        SinitCalc = x_to_s(.408);
-    case 5
-        SinitCalc = x_to_s(.366);
-    case 6
-        SinitCalc = x_to_s(.322);
-    case 8
-        SinitCalc = x_to_s(.244);
-    case 10
-        SinitCalc = x_to_s(.178);
-    otherwise
-        error('Drop Height %d Not in list of options. calculate the offset',DropHeight)
-end
-
-Random_bounds(6,:) = [SinitCalc-DeltaS,SinitCalc+DeltaS];
-%% Random sweep to get starting vector
-if MakeNewStartGuess
-    StateVects = ME107RollCarMakeNChildren(TotalStates,Random_bounds);
-    StateVects = [StateVects;zeros([1,TotalStates])];
-
-    tic;
-    % go through the individual state vectors
-    ModelRuns = TotalStates;
-    for jujube = 1:TotalStates
-        IndividualStateVector = StateVects(1:(end-1),jujube);
-        OldMSE = StateVects(end,jujube); 
-        MSE = ME107RollCarGetMSE(IndividualStateVector,Tdata,Xdata,Ydata,TimeStep,m,rw,rg,s_to_x,TrackPosition_s,TrackSlope_s,TrackConcavity_s,TrackCurvature_s,Passes);
-        StateVects(end,jujube) = MSE;
+    switch DropHeight
+        case 1
+            SinitCalc = x_to_s(.55);
+        case 2
+            SinitCalc = x_to_s(.50);
+        case 4
+            SinitCalc = x_to_s(.408);
+        case 5
+            SinitCalc = x_to_s(.366);
+        case 6
+            SinitCalc = x_to_s(.322);
+        case 8
+            SinitCalc = x_to_s(.244);
+        case 10
+            SinitCalc = x_to_s(.178);
+        otherwise
+            error('Drop Height %d Not in list of options. calculate the offset',DropHeight)
     end
-    endtime = toc;
-    fprintf('%d model runs elapsed time: %.3f Seconds \n',ModelRuns,endtime)
-    fprintf('Average time per run: %.2f Seconds \n',endtime/ModelRuns)
-    % sort in the fittest models through minimization
-    MSEColVect = StateVects(end,:);
-    [~,SortedIndices] = sort(MSEColVect);
-    StateVects = StateVects(:,SortedIndices);
-    
-    StartGuess = StateVects(1:(end-1),1);
+
+    Random_bounds(6,:) = [SinitCalc-DeltaS,SinitCalc+DeltaS];
+    %% Random sweep to get starting vector
+    if MakeNewStartGuess
+        StateVects = ME107RollCarMakeNChildren(TotalStates,Random_bounds);
+        StateVects = [StateVects;zeros([1,TotalStates])];
+
+        tic;
+        % go through the individual state vectors
+        ModelRuns = TotalStates;
+        for jujube = 1:TotalStates
+            IndividualStateVector = StateVects(1:(end-1),jujube);
+            OldMSE = StateVects(end,jujube); 
+            MSE = ME107RollCarGetMSE(IndividualStateVector,Tdata,Xdata,Ydata,TimeStep,m,rw,rg,s_to_x,TrackPosition_s,TrackSlope_s,TrackConcavity_s,TrackCurvature_s,Passes);
+            StateVects(end,jujube) = MSE;
+        end
+        endtime = toc;
+        fprintf('%d model runs elapsed time: %.3f Seconds \n',ModelRuns,endtime)
+        fprintf('Average time per run: %.2f Seconds \n',endtime/ModelRuns)
+        % sort in the fittest models through minimization
+        MSEColVect = StateVects(end,:);
+        [~,SortedIndices] = sort(MSEColVect);
+        StateVects = StateVects(:,SortedIndices);
+
+        StartGuess = StateVects(1:(end-1),1);
+    end
+
+
+    %% Optimize the crap out of things
+    OptFunc = @(vector) ME107RollCarMLOptMSE(vector,Tdata,Xdata,Ydata,TimeStep,m,rw,rg,s_to_x,TrackPosition_s,TrackSlope_s,TrackConcavity_s,TrackCurvature_s,Passes);
+    tic;
+    [WinVector,resnorm] = lsqnonlin(OptFunc,StartGuess,Random_bounds(:,1),Random_bounds(:,2));
+    fprintf('Matlab Optimization')
+    toc;
+
+    Survivors = [WinVector;resnorm];
+
+
+    %% Save the winning Configuration Data
+    thingname = sprintf('Survivors_m_%.4f_rg_%.6f_h_%d.mat',m,rg,DropHeight);
+    Savepath = strcat(GitRepositoryPath,filesep,ProjectFolder,filesep,SaveFolder,filesep,thingname);
+    save(Savepath,'Survivors')
+    %% Check the winning configuration
+    WinnerMSE = resnorm;
+    fprintf('Winning Vector:\n CD:\t %.4f \n CRF:\t %.5f \n IDK:\t %.5f \n muk:\t %.4f \n musF:\t %.4f \n sinit:\t %.4f \n',WinVector)
+    fprintf('Winning Configuration Mean Square Error: %.6f \n', WinnerMSE)
+
+    CD = WinVector(1);
+    CRF = WinVector(2);
+    IDK = WinVector(3)*.5;
+    muk = WinVector(4);
+    mus = muk*WinVector(5);
+    sinit = WinVector(6);
+
+    RCDAF = GetRollCarDynamicsFunction(m,rw,rg,mus,muk,CD,CRF,IDK,TrackPosition_s,TrackSlope_s,TrackConcavity_s,TrackCurvature_s);
+    [tsim,xvectsim] = RungeKutta4(RCDAF,[0,Tdata(end)],[sinit;0;0;0],TimeStep);
+    ssim = xvectsim(:,1);
+    % HYSTERISIS!
+    xsim = zeros([numel(ssim),1]);
+    for apple = 1:numel(ssim) 
+        xsim(apple) = s_to_x(ssim(apple));
+    end
+    % HYSTERISIS !
+    ysim = zeros([numel(ssim),1]);
+    for plum = 1:numel(xsim)
+        ysim(plum) = TrackPosition_s(ssim(plum));
+    end
+    xfunction = @(xx) interp1(tsim,xsim,xx,'pchip');
+    yfunction = @(xx) interp1(tsim,ysim,xx,'pchip');
+
+    sddot = zeros([numel(ssim),1]);
+    thetaddot = zeros([numel(ssim),1]);
+    for jackfruit = 1:size(xvectsim,1)
+        dotvec = RCDAF(tsim(jackfruit),xvectsim(jackfruit,:)');
+        sddot(jackfruit) = dotvec(2);
+        thetaddot(jackfruit) = dotvec(4);
+    end
+    MeanSquareError = mean(sqrt((xfunction(Tdata)-Xdata).^2 + (yfunction(Tdata)-Ydata).^2));
+    fprintf('Full Run MSE: %.6f \n',MeanSquareError)
+
+    sdot = xvectsim(:,2);
+    thetadot = xvectsim(:,4);
+    KineticEnergy = .5*m*sdot.^2 + .5*m*rg^2*thetadot.^2;
+    PotentialEnergy = m*9.81*ysim;
+    TotalEnergy = KineticEnergy + PotentialEnergy;
+
+    % plot lots of figures to determine if simulation is physical or not
+    figure();
+    hold on;
+    plot(tsim,KineticEnergy,'r');
+    plot(tsim,PotentialEnergy,'g');
+    plot(tsim,TotalEnergy,'b')
+    titstr = sprintf('Plots of Energy vs time for simulation for ConfigPick num: %i',ConfigPick);
+    title(titstr)
+    xlabel('Time [s]')
+    ylabel('Energy [joules]')
+    legend('KE','PE','TE','Location','Best')
+
+    figure();
+    hold on
+    plot(Tdata,Xdata,'k-x');
+    plot(tsim,xsim,'r--');
+    xlabel('Time [s]');
+    ylabel('x [m]');
+    titstr = sprintf('x vs t Data vs Simulation Config number: %i',ConfigPick);
+    title(titstr);
+    legend('Data  X Position','Simulation X Position','Location','best')
+    set(gca,'FontSize',14);
+
+    figure();
+    hold on
+    plot(Tdata,Ydata,'k-x');
+    plot(tsim,ysim,'r--')
+    xlabel('Time [s]');
+    ylabel('y [m]');
+    titstr = sprintf('y vs t Data vs Simulation Config number: %i',ConfigPick);
+    title(titstr);
+    legend('Data Y Position','Simulation Y Position','Location','best')
+    set(gca,'FontSize',14);
+
+    figure();
+    hold on;
+    plot(tsim,sdot,'m');
+    plot(tsim,rw*thetadot,'c');
+    plot(tsim,sdot-rw*thetadot,'k')
+    plot(tsim,KineticEnergy,'r.');
+    plot(tsim,PotentialEnergy,'g.');
+    plot(tsim,TotalEnergy,'b.')
+    plot(tsim,sddot,'r')
+    plot(tsim,thetaddot*rw,'b')
+    xlabel('Time [s]');
+    ylabel('Different Things');
+    titstr = sprintf('Config num: %i Lots of stuff graph',ConfigPick);
+    title(titstr);
+    legend('sdot','thetadot*rw','vp','KE','PE','TE','sddot','thetaddot','Location','best')
+    set(gca,'FontSize',14);
 end
-
-
-%% Optimize the crap out of things
-OptFunc = @(vector) ME107RollCarMLOptMSE(vector,Tdata,Xdata,Ydata,TimeStep,m,rw,rg,s_to_x,TrackPosition_s,TrackSlope_s,TrackConcavity_s,TrackCurvature_s,Passes);
-tic;
-[WinVector,resnorm] = lsqnonlin(OptFunc,StartGuess,Random_bounds(:,1),Random_bounds(:,2));
-fprintf('Matlab Optimization')
-toc;
-
-
-%% Save the winning Configuration Data
-thingname = sprintf('Survivors_m_%.4f_rg_%.6f_h_%d.mat',m,rg,DropHeight);
-Savepath = strcat(GitRepositoryPath,filesep,ProjectFolder,filesep,SaveFolder,filesep,thingname);
-save(Savepath,'WinVector')
-%% Check the winning configuration
-WinnerMSE = resnorm;
-fprintf('Winning Vector:\n CD:\t %.4f \n CRF:\t %.5f \n IDK:\t %.5f \n muk:\t %.4f \n musF:\t %.4f \n sinit:\t %.4f \n',WinVector)
-fprintf('Winning Configuration Mean Square Error: %.6f \n', WinnerMSE)
-
-CD = WinVector(1);
-CRF = WinVector(2);
-IDK = WinVector(3)*.5;
-muk = WinVector(4);
-mus = muk*WinVector(5);
-sinit = WinVector(6);
-
-RCDAF = GetRollCarDynamicsFunction(m,rw,rg,mus,muk,CD,CRF,IDK,TrackPosition_s,TrackSlope_s,TrackConcavity_s,TrackCurvature_s);
-[tsim,xvectsim] = RungeKutta4(RCDAF,[0,Tdata(end)],[sinit;0;0;0],TimeStep);
-ssim = xvectsim(:,1);
-% HYSTERISIS!
-xsim = zeros([numel(ssim),1]);
-for apple = 1:numel(ssim) 
-    xsim(apple) = s_to_x(ssim(apple));
-end
-% HYSTERISIS !
-ysim = zeros([numel(ssim),1]);
-for plum = 1:numel(xsim)
-    ysim(plum) = TrackPosition_s(ssim(plum));
-end
-xfunction = @(xx) interp1(tsim,xsim,xx,'pchip');
-yfunction = @(xx) interp1(tsim,ysim,xx,'pchip');
-
-sddot = zeros([numel(ssim),1]);
-thetaddot = zeros([numel(ssim),1]);
-for jackfruit = 1:size(xvectsim,1)
-    dotvec = RCDAF(tsim(jackfruit),xvectsim(jackfruit,:)');
-    sddot(jackfruit) = dotvec(2);
-    thetaddot(jackfruit) = dotvec(4);
-end
-MeanSquareError = mean(sqrt((xfunction(Tdata)-Xdata).^2 + (yfunction(Tdata)-Ydata).^2));
-fprintf('Full Run MSE: %.6f \n',MeanSquareError)
-
-sdot = xvectsim(:,2);
-thetadot = xvectsim(:,4);
-KineticEnergy = .5*m*sdot.^2 + .5*m*rg^2*thetadot.^2;
-PotentialEnergy = m*9.81*ysim;
-TotalEnergy = KineticEnergy + PotentialEnergy;
-
-% plot lots of figures to determine if simulation is physical or not
-figure();
-hold on;
-plot(tsim,KineticEnergy,'r');
-plot(tsim,PotentialEnergy,'g');
-plot(tsim,TotalEnergy,'b')
-title('Plots of Energy vs time for simulation')
-xlabel('Time [s]')
-ylabel('Energy [joules]')
-legend('KE','PE','TE','Location','Best')
-
-figure();
-hold on
-plot(Tdata,Xdata,'k-x');
-plot(tsim,xsim,'r--');
-xlabel('Time [s]');
-ylabel('x [m]');
-title('x vs t Data vs Simulation');
-legend('Data  X Position','Simulation X Position','Location','best')
-set(gca,'FontSize',14);
-
-figure();
-hold on
-plot(Tdata,Ydata,'k-x');
-plot(tsim,ysim,'r--')
-xlabel('Time [s]');
-ylabel('y [m]');
-title('y vs t Data vs Simulation');
-legend('Data Y Position','Simulation Y Position','Location','best')
-set(gca,'FontSize',14);
-
-figure();
-hold on;
-plot(tsim,sdot,'m');
-plot(tsim,rw*thetadot,'c');
-plot(tsim,sdot-rw*thetadot,'k')
-plot(tsim,KineticEnergy,'r.');
-plot(tsim,PotentialEnergy,'g.');
-plot(tsim,TotalEnergy,'b.')
-plot(tsim,sddot,'r')
-plot(tsim,thetaddot*rw,'b')
-xlabel('Time [s]');
-ylabel('Different Things');
-title('Lots of stuff graph');
-legend('sdot','thetadot*rw','vp','KE','PE','TE','sddot','thetaddot','Location','best')
-set(gca,'FontSize',14);
 
 % % % animation to ensure that results "look" right
 % % pause(1)

@@ -27,13 +27,6 @@ end
 xfunction = @(xx) interp1(tsim,xsim,xx,'pchip');
 yfunction = @(xx) interp1(tsim,ysim,xx,'pchip');
 
-% Because dividing by number of passes need to edit data to not have values
-% outside of what was simulated!
-Acceptable = Tdata <= Tdata(end)/Passes;
-Tdata = Tdata(Acceptable);
-Xdata = Xdata(Acceptable);
-Ydata = Ydata(Acceptable);
-
 MeanSquareError = mean(sqrt((xfunction(Tdata)-Xdata).^2 + (yfunction(Tdata)-Ydata).^2));
 fprintf('Mean Square Error: %.6f \n', MeanSquareError)
 
