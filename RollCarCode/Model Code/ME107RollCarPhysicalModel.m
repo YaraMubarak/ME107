@@ -1,8 +1,8 @@
-clear all; close all;
+clear all; close all;clc;
 %% Things Requiring changeing
-% implemented owners names = 'Patrick','Colin'
+% implemented owners names = 'Patrick','Colin', 'Jay'
 % put in your own filepath and add your name to the list
-ComputerOwner = 'Jay';
+ComputerOwner = 'Patrick';
 ConfigPick = 9;
 
 PlotTrackThings = false;
@@ -10,7 +10,7 @@ MakeNewStateVects = false;
 
 TimeStep = 5e-4; % this fairly critical, if much larger will miss tol and oscilate never reaching no slip cond.
 
-Iterations = 30;
+Iterations = 20;
 TotalStates = 30;
 Survivors = 3;
 ChilderenPerCouple = 2;
