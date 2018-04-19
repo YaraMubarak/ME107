@@ -1,4 +1,4 @@
-%clear all; close all; clc;
+clear all; close all; clc;
 load configurations_04_12_untrimmed;
 for ConfigPick = 1:numel(averagedConfigurations_04_12)
     config = averagedConfigurations_04_12(ConfigPick);

@@ -4,12 +4,13 @@ clear all; close all;clc;
 % put in your own filepath and add your name to the list
 ComputerOwner = 'Patrick';
 ConfigPicks = [3,5,7,12,15];
+fprintf('Begining Configuration number: %i \n',ConfigPick)
 
 PlotTrackThings = false;
 MakeNewStartGuess = true;
 TotalStates = 50;
 
-TimeStep = 1e-3; % this fairly critical, if much larger will miss tol and oscilate never reaching no slip cond.
+TimeStep = 5e-4; % this fairly critical, if much larger will miss tol and oscilate never reaching no slip cond.
 
 CD_bounds = [0,3];
 CRF_bounds = [0,.05];
@@ -108,7 +109,6 @@ end
 %% Get Comparison Data
 load configurations_04_12_untrimmed;
 for ConfigPick = ConfigPicks
-    fprintf('Begining Configuration number: %i \n',ConfigPick)
     config = averagedConfigurations_04_12(ConfigPick);
     Xdata = config.x{1}/100;
     Ydata = config.y{1}/100;
