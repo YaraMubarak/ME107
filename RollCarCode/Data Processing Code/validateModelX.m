@@ -2,7 +2,7 @@ function []=validateModelX(model_passes,model_x_max,model_a,model_b,model_t_end,
     passes=predict(model_passes,[m,rg,h]);
     x_max=predict(model_x_max,[m,rg,h]);
     
-    tTest=linspace(0,max(tReal),100);
+    tTest=linspace(0,predict(model_t_end,[m,rg,h]),100);
     xTest=[];
     
     if passes>=0

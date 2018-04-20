@@ -205,3 +205,10 @@ validateModelX(model_passes,model_x_max,model_a,model_b,model_t_end,tReal,xReal,
 
 disp('');
 end
+
+%% Test Model on New Configuration
+
+m=1000;
+rg=40;
+h=50;
+validateModelX(model_passes,model_x_max,model_a,model_b,model_t_end,[],[],m,rg,h);
