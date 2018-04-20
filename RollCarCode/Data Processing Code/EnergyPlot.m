@@ -12,7 +12,7 @@ for m=1:length(configs)
     vx=configs(m).vx{1};
     v=sqrt(vy.^2+vx.^2);
     
-    E0=configs(m).m/1000*g*y(1)/100; % in J
+    E0=[E0 configs(m).m/1000*g*y(1)/100]; % in J
     E=configs(m).m/1000*g*y/100+1/2*configs(m).m/1000*(v/100).^2; % in J
     E_av(m)=mean(E);
 end

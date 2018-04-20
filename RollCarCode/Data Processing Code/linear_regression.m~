@@ -116,10 +116,11 @@ for m=1:length(configs)
         t=configs(m).t{n};
         x_data=configs(m).x{n};
         if configs(m).passes(n)>=0
-        count_a=count_a+1;
-        mass_a=[mass_a; configs(m).m];
-        rg_a=[rg_a; configs(m).r];
-        height_a=[height_a; convertHeightSR(configs(m).h)];        x_max=max(x_data);
+            count_a=count_a+1;
+            mass_a=[mass_a; configs(m).m];
+            rg_a=[rg_a; configs(m).r];
+            height_a=[height_a; convertHeightSR(configs(m).h)];
+        x_max=max(x_data);
         T=max(t)/(configs(m).passes(n)+0.5);
         f=1/T;
         
@@ -143,9 +144,9 @@ for m=1:length(configs)
             t=t';
             x_data=x_data';
             table_data=table(t,x_data);
-            model_x=fitlm(table_data,'x_data ~ t^3');
+            model_x=fitlm(table_data,'x_data ~ t^2');
             
-            for k=1:4
+            for k=1:3
                 b(count_b,k)=model_x.Coefficients{k,1};
             end
             
@@ -170,10 +171,11 @@ end
 T_model_a1=table(mass_a,rg_a,height_a,a(:,1));
 T_model_a2=table(mass_a,rg_a,height_a,a(:,2));
 
-%{
+
 T_model_b1=table(mass_b,rg_b,height_b,b(:,1));
 T_model_b2=table(mass_b,rg_b,height_b,b(:,2));
 T_model_b3=table(mass_b,rg_b,height_b,b(:,3));
+%{
 T_model_b4=table(mass_b,rg_b,height_b,b(:,4));
 T_model_b5=table(mass_b,rg_b,height_b,b(:,5));
 T_model_b6=table(mass_b,rg_b,height_b,b(:,6));
@@ -181,16 +183,17 @@ T_model_b6=table(mass_b,rg_b,height_b,b(:,6));
 
 model_a1=fitlm(T_model_a1,'Var4 ~ mass_a*rg_a*height_a');
 model_a2=fitlm(T_model_a2,'Var4 ~ mass_a*rg_a*height_a');
-%{
+
 model_b1=fitlm(T_model_b1,'Var4 ~ mass_b*rg_b*height_b');
 model_b2=fitlm(T_model_b2,'Var4 ~ mass_b*rg_b*height_b');
+%{
 model_b3=fitlm(T_model_b3,'Var4 ~ mass_b*rg_b*height_b');
 model_b4=fitlm(T_model_b4,'Var4 ~ mass_b*rg_b*height_b');
 model_b5=fitlm(T_model_b5,'Var4 ~ mass_b*rg_b*height_b');
 model_b6=fitlm(T_model_b6,'Var4 ~ mass_b*rg_b*height_b');
 %}
 model_a={model_a1,model_a2};
-model_b={}%{model_b1,model_b2,model_b3,model_b4};
+model_b={};%{model_b1,model_b2,model_b3,model_b4,model_b5,model_b6};
 
 %% Validate Model: x
 
@@ -203,5 +206,8 @@ h=convertHeightSR(configs(configNumber).h);
 
 validateModelX(model_passes,model_x_max,model_a,model_b,model_t_end,tReal,xReal,m,rg,h);
 
-disp('');
 end
+%x_model_fun=@(b,x) b(1)+b(2)*x(:,1)+b(3)*x(:,2).^2+b(4)*x(:,3)+b(5)*sin(b(6)*x(:,4))+b(7)*cos(b(8)*x(:,4));
+%beta0=[0;0;0;0;0;0;0;0];
+
+%model_x=fitnlm(T_model_t_nondim_x_nondim,x_model_fun,beta0);
