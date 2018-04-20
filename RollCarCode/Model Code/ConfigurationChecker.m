@@ -1,5 +1,7 @@
+clear all; close all; clc;
 ComputerOwner = 'Patrick';
-ConfigPick = 2;
+ConfigPick = 1;
+TimeStep = 5e-4;
 
 ProjectFolder = 'RollCarCode';
 DataFolder = strcat('Data',filesep,'2x2x2_test_matrix');
@@ -18,6 +20,7 @@ end
 
 DataCodeFullPath = strcat(GitRepositoryPath,filesep,ProjectFolder,filesep,DataCodeFolder);
 DataFullPath = strcat(GitRepositoryPath,filesep,ProjectFolder,filesep,DataFolder);
+addpath(DataFullPath,DataCodeFullPath)
 load configurations_04_12_untrimmed;
 
 config = averagedConfigurations_04_12(ConfigPick);
@@ -34,7 +37,10 @@ DropHeight = config.h;
 
 thingname = sprintf('Survivors_m_%.4f_rg_%.6f_h_%d.mat',m,rg,DropHeight);
 Savepath = strcat(GitRepositoryPath,filesep,ProjectFolder,filesep,SaveFolder,filesep,thingname);
-T = load(Savepath)
+T = load(Savepath);
+fnames = fieldnames(T);
+Something = T.(fnames{1});
+WinVector = Something(1:6,1);
 
 Trackxvals = (1/100)*[5.9,9.9,13.5,17.7,20.2,25,29,32.7,37.6,41,67.2,109.1,151.3,194.5,230.0,281,324,366.1,408.4,451.5,495.9,538.1,581.3,624.2,666.1,698.1,745];
 Trackyvals = (1/100)*[55.9,52.8,48.7,45.2,41.3,37.7,33.5,29.9,26.6,23.3,9.1,1.1,1.1,1.1,1.1,1.1,6,10,1,1,1,1,1,1,8.2,37,100];
@@ -93,14 +99,17 @@ end
 % fprintf('Winning Vector:\n CD:\t %.4f \n CRF:\t %.5f \n IDK:\t %.5f \n muk:\t %.4f \n musF:\t %.4f \n sinit:\t %.4f \n',WinVector)
 % fprintf('Winning Configuration Mean Square Error: %.6f \n', WinnerMSE)
 % 
+%%
+TimeStep = 5e-4;
+WinVector = [.47;.001;.001;.1;1.2;SinitCalc];
 CD = WinVector(1);
 CRF = WinVector(2);
-IDK = WinVector(3)*.5;
+IDK = WinVector(3);
 muk = WinVector(4);
 mus = muk*WinVector(5);
 sinit = WinVector(6);
 
-RCDAF = GetRollCarDynamicsFunction(m,rw,rg,mus,muk,CD,CRF,IDK,TrackPosition_s,TrackSlope_s,TrackConcavity_s,TrackCurvature_s);
+RCDAF = GetRollCarDynamicsFunction(m,rw,rg*sqrt(2),mus,muk,CD,CRF,IDK,TrackPosition_s,TrackSlope_s,TrackConcavity_s,TrackCurvature_s);
 [tsim,xvectsim] = RungeKutta4(RCDAF,[0,Tdata(end)],[sinit;0;0;0],TimeStep);
 ssim = xvectsim(:,1);
 % HYSTERISIS!
@@ -128,7 +137,7 @@ fprintf('Full Run MSE: %.6f \n',MeanSquareError)
 
 sdot = xvectsim(:,2);
 thetadot = xvectsim(:,4);
-KineticEnergy = .5*m*sdot.^2 + .5*m*rg^2*thetadot.^2;
+KineticEnergy = .5*m*sdot.^2 + m*rg^2*thetadot.^2;
 PotentialEnergy = m*9.81*ysim;
 TotalEnergy = KineticEnergy + PotentialEnergy;
 

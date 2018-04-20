@@ -3,7 +3,7 @@ clear all; close all;clc;
 % implemented owners names = 'Patrick','Colin','Jay'
 % put in your own filepath and add your name to the list
 ComputerOwner = 'Patrick';
-ConfigPicks = [3,5,7,12,15];
+ConfigPicks = [16,19,20,23,24];
 
 PlotTrackThings = false;
 MakeNewStartGuess = true;
@@ -83,9 +83,14 @@ if PlotTrackThings
 
     figure()
     hold on
-    plot(Trackxvals,Trackyvals,'go')
+    plot(Trackxvals(1:(end-1)),Trackyvals(1:(end-1)),'go')
     plot(interppoints,TrackPosition(interppoints),'r')
+    ylim([-.05,.7])
     title('Track function')
+    xlabel('X poistion [m]')
+    ylabel('Y Position [m]')
+    legend('Measured Track Points','Spline Interpolated Track Function','Location','North')
+    
     % axis('equal')
 
     figure()
@@ -186,7 +191,7 @@ for ConfigPick = ConfigPicks
 
     CD = WinVector(1);
     CRF = WinVector(2);
-    IDK = WinVector(3)*.5;
+    IDK = WinVector(3);
     muk = WinVector(4);
     mus = muk*WinVector(5);
     sinit = WinVector(6);
