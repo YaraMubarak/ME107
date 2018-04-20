@@ -16,6 +16,7 @@ Y = np.random.rand(200,4)
 def LOOvalidation(X,Y,model) : 
     error = 0
     for i in range(len(X)):
+        print('Removing Point ' + str(i))
         Xtest = X[i,:]
         Ytest = Y[i,:]
         
@@ -28,7 +29,7 @@ def LOOvalidation(X,Y,model) :
 
         error = error + np.average(m.perc_error(Xtest,Ytest))
     error = error/float(len(X)) 
-    return error 
+    return error
 
 # =============================================================================
 # lp = lp(X,Y)
@@ -36,7 +37,7 @@ def LOOvalidation(X,Y,model) :
 # preds = lp.pred(X) 
 # error = lp.perc_error(X,Y)
 # =============================================================================
-e = LOOvalidation(X,Y,Poly2)
+e = LOOvalidation(X,Y,NN)
     
 # =============================================================================
 # lp = Poly2(X,Y)
