@@ -209,7 +209,7 @@ for m=1:2*max([configs.passes])+2
 end
 
 disp('');
-%% Test the model
+%% Validate the model
 
 for configNumber=1:length(configs)
 
@@ -252,6 +252,51 @@ plot(t_test,x_sim);
 hold on;
 plot(configs(configNumber).t{1},configs(configNumber).x{1});
 hold off;
-
+xlabel('Time (s)');
+ylabel('X position (cm)');
+legend('Predicted by Model','Experimental Data','Location','best');
+set(gca,'FontSize',14);
 disp('');
 end
+
+%% Run the model on a New Case
+
+m_sim=1000; % g
+r_sim=40; % mm
+h_sim=35; % cm
+
+% Predict total run time
+
+t_end=predict(model_t_end,[m_sim, r_sim, h_sim]);
+
+% Predict num passes
+
+passes=round(predict(model_passes,[m_sim, r_sim, h_sim]));
+
+% Predict coeffs
+
+num_extrema=2*passes+2;
+
+t_test=[];
+x_sim=[];
+
+for m=1:num_extrema-1
+    t1=predict(model_extrema{1,m},[m_sim,r_sim,h_sim,m]);
+    t2=predict(model_extrema{1,m+1},[m_sim,r_sim,h_sim,m+1]);
+    x1=predict(model_extrema{2,m},[m_sim,r_sim,h_sim,m]);
+    x2=predict(model_extrema{2,m+1},[m_sim,r_sim,h_sim,m+1]);
+    v1=predict(model_extrema{3,m},[m_sim,r_sim,h_sim,m]);
+    v2=predict(model_extrema{3,m+1},[m_sim,r_sim,h_sim,m+1]);
+    
+    t_temp=linspace(t1,t2,100);
+    x_temp=spline([t1,t2],[v1,x1,x2,v2],t_temp);
+    
+    t_test=[t_test t_temp];
+    x_sim=[x_sim x_temp];
+    disp('');
+end
+
+plot(t_test,x_sim);
+xlabel('Time (s)');
+ylabel('X position (cm)');
+set(gca,'FontSize',14);
