@@ -190,7 +190,7 @@ model_b5=fitlm(T_model_b5,'Var4 ~ mass_b*rg_b*height_b');
 model_b6=fitlm(T_model_b6,'Var4 ~ mass_b*rg_b*height_b');
 %}
 model_a={model_a1,model_a2};
-model_b={}%{model_b1,model_b2,model_b3,model_b4};
+model_b={};%{model_b1,model_b2,model_b3,model_b4};
 
 %% Validate Model: x
 

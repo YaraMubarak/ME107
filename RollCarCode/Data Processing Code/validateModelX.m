@@ -25,7 +25,7 @@ function []=validateModelX(model_passes,model_x_max,model_a,model_b,model_t_end,
     
     plot(tTest,xTest);
     hold on;
-    plot(tReal,xReal);
+    plot(tReal,xReal,'rx-');
     xlabel('Time (s)');
     ylabel('X Position (cm)');
     legend('Simulation','Real');
