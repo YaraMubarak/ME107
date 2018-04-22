@@ -204,7 +204,7 @@ for m=1:2*max([configs.passes])+2
     for n=1:4
         tbl=table(mass_repeat_model{m},rg_repeat_model{m},h_repeat_model{m},division_number{m},combinedExtrema{n,m},'VariableNames',{'mass','rg','height','division_num','Var4'});
         tbl_modified=table(mass_repeat_model{m},rg_repeat_model{m},h_repeat_model{m},combinedExtrema{n,m},'VariableNames',{'mass','rg','height','Var4'});%model_extrema{n,m}=fitlm(tbl,'Var4 ~ mass+rg+height+division_num');
-        model_extrema{n,m}=fitlm(tbl_modified,'Var4 ~ height*mass*rg:rg');
+        model_extrema{n,m}=fitlm(tbl_modified,'Var4 ~ height*mass*rg');
         disp('');
     end
 end
@@ -247,7 +247,6 @@ for m=1:num_extrema-1
     
     t_test=[t_test t_temp];
     x_sim=[x_sim x_temp];
-    
     disp('');
 end
 
@@ -278,7 +277,7 @@ t_end=predict(model_t_end,[m_sim, r_sim, h_sim]);
 
 % Predict num passes
 
-passes=round(predict(model_passes,[m_sim, r_sim, h_sim]));
+passes=ceil(predict(model_passes,[m_sim, r_sim, h_sim]));
 
 % Predict coeffs
 
@@ -288,6 +287,7 @@ t_test=[];
 x_sim=[];
 
 for m=1:num_extrema-1
+    if t2<t_end
     
     t1=predict(model_extrema{1,m},[m_sim,r_sim,h_sim]);
     t2=predict(model_extrema{1,m+1},[m_sim,r_sim,h_sim]);
@@ -301,6 +301,7 @@ for m=1:num_extrema-1
     
     t_test=[t_test t_temp];
     x_sim=[x_sim x_temp];
+    
     disp('');
 end
 
