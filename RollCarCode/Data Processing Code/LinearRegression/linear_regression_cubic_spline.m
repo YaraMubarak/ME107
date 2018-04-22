@@ -256,6 +256,10 @@ xlabel('Time (s)');
 ylabel('X position (cm)');
 legend('Predicted by Model','Experimental Data','Location','best');
 set(gca,'FontSize',14);
+titleText=['Mass ' num2str(m_sim) ' g, ' 'R_g ' ...
+            num2str(r_sim) ' mm, ' ' Height ' ...
+            num2str(h_sim) ' cm'];
+title(titleText);
 disp('');
 end
 
