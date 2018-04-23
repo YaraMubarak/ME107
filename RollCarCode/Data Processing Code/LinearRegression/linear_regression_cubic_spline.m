@@ -1,6 +1,7 @@
 %% Load Data
 
 clear all;
+close all;
 load configurations_04_12_trimmed_v_and_a;
 configs=configurations_04_12_trimmed_v_and_a;
 mass=[];
@@ -97,10 +98,10 @@ model_x_end=fitlm(T_model_x_end,'x_end ~ mass*rg^2*height');
 %% Make model: passes.
 model_passes=fitlm(T_model_passes,'passes ~ mass*rg^2*height');
 
-%% Find coeffs for x
+%% Find models for x,y
 
 degree=0;
-extrema=struct('t',[],'x',[],'vx',[],'ax',[],'m',[],'r',[],'h',[]);
+extrema=struct('t',[],'x',[],'y',[],'m',[],'r',[],'h',[]);
 
 count=1;
 for m=1:length(configs)
@@ -108,8 +109,7 @@ for m=1:length(configs)
         
     begin_left_hillx=213.9+129.7+180.7+108.8;
     xData=configs(m).x{n};
-    vXData=configs(m).vx{n};
-    aXData=configs(m).ax{n};
+    yData=configs(m).y{n};
     tData=configs(m).t{n};
     
     made_it_over_hill=true;
@@ -120,8 +120,7 @@ for m=1:length(configs)
     
     extrema_struct.t=tData(1);
     extrema_struct.x=xData(1);
-    extrema_struct.vx=vXData(1);
-    extrema_struct.ax=aXData(1);
+    extrema_struct.y=yData(1);
     
     while made_it_over_hill && index<=length(xData)
         localXMax=68.1+213.9+129.7+180.7+108.8;
@@ -129,8 +128,7 @@ for m=1:length(configs)
         if xData(index)<xData(index-1) && increasing
             extrema_struct.t=[extrema_struct.t tData(index)];
             extrema_struct.x=[extrema_struct.x xData(index)];
-            extrema_struct.vx=[extrema_struct.vx vXData(index)];
-            extrema_struct.ax=[extrema_struct.ax aXData(index)];
+            extrema_struct.y=[extrema_struct.y yData(index)];
             increasing=false;
             localXMax=xData(index-1);
             if localXMax<begin_left_hillx
@@ -143,17 +141,15 @@ for m=1:length(configs)
             increasing=true;
             extrema_struct.t=[extrema_struct.t tData(index)];
             extrema_struct.x=[extrema_struct.x xData(index)];
-            extrema_struct.vx=[extrema_struct.vx vXData(index)];
-            extrema_struct.ax=[extrema_struct.ax aXData(index)];
+            extrema_struct.y=[extrema_struct.y yData(index)];
             last_index=index;
         end
         
         index=index+1;
     end
-    extrema_struct.t=[extrema_struct.t tData(length(xData))];
+    extrema_struct.t=[extrema_struct.t tData(length(tData))];
     extrema_struct.x=[extrema_struct.x xData(length(xData))];
-    extrema_struct.vx=[extrema_struct.vx vXData(length(xData))];
-    extrema_struct.ax=[extrema_struct.ax aXData(length(xData))];
+    extrema_struct.y=[extrema_struct.y yData(length(yData))];
     
     
     extrema_struct.m=configs(m).m;
@@ -166,45 +162,34 @@ for m=1:length(configs)
     end
 end
 
-disp('');
-
 mass_repeat_model=cell(1,2*max([configs.passes])+2);
 rg_repeat_model=cell(1,2*max([configs.passes])+2);
 h_repeat_model=cell(1,2*max([configs.passes])+2);
-
-division_number=cell(1,2*max([configs.passes])+2);
 
 for m=1:length(extrema)
     for n=1:length(extrema(m).t)
         mass_repeat_model{n}=[mass_repeat_model{n}; extrema(m).m];
         rg_repeat_model{n}=[rg_repeat_model{n}; extrema(m).r];
         h_repeat_model{n}=[h_repeat_model{n}; extrema(m).h];
-        division_number{n}=[division_number{n}; n];
     end
 end
 
 
-model_extrema=cell(4,2*max([configs.passes])+2);
-combinedExtrema=cell(4,2*max([configs.passes])+2);
+model_extrema=cell(3,2*max([configs.passes])+2);
+combinedExtrema=cell(3,2*max([configs.passes])+2);
 
 for m=1:length(extrema)
     for n=1:length(extrema(m).t)
-    try
         combinedExtrema{1,n}=[combinedExtrema{1,n}; extrema(m).t(n)];
         combinedExtrema{2,n}=[combinedExtrema{2,n}; extrema(m).x(n)];
-        combinedExtrema{3,n}=[combinedExtrema{3,n}; extrema(m).vx(n)];
-        combinedExtrema{4,n}=[combinedExtrema{4,n}; extrema(m).ax(n)];
-    catch Exception
-        disp('');
-    end
+        combinedExtrema{3,n}=[combinedExtrema{3,n}; extrema(m).y(n)];
     end
 end
 
 for m=1:2*max([configs.passes])+2
-    for n=1:4
-        tbl=table(mass_repeat_model{m},rg_repeat_model{m},h_repeat_model{m},division_number{m},combinedExtrema{n,m},'VariableNames',{'mass','rg','height','division_num','Var4'});
-        tbl_modified=table(mass_repeat_model{m},rg_repeat_model{m},h_repeat_model{m},combinedExtrema{n,m},'VariableNames',{'mass','rg','height','Var4'});%model_extrema{n,m}=fitlm(tbl,'Var4 ~ mass+rg+height+division_num');
-        model_extrema{n,m}=fitlm(tbl_modified,'Var4 ~ height*mass*rg:rg');
+    for n=1:3
+        tbl=table(mass_repeat_model{m},rg_repeat_model{m},h_repeat_model{m},combinedExtrema{n,m},'VariableNames',{'mass','rg','height','Var4'});%model_extrema{n,m}=fitlm(tbl,'Var4 ~ mass+rg+height+division_num');
+        model_extrema{n,m}=fitlm(tbl,'Var4 ~ height*mass*rg:rg');
         disp('');
     end
 end
@@ -232,6 +217,7 @@ num_extrema=2*passes+2;
 
 t_test=[];
 x_sim=[];
+y_sim=[];
 
 for m=1:num_extrema-1
     
@@ -239,17 +225,27 @@ for m=1:num_extrema-1
     t2=predict(model_extrema{1,m+1},[m_sim,r_sim,h_sim]);
     x1=predict(model_extrema{2,m},[m_sim,r_sim,h_sim]);
     x2=predict(model_extrema{2,m+1},[m_sim,r_sim,h_sim]);
-    v1=predict(model_extrema{3,m},[m_sim,r_sim,h_sim]);
-    v2=predict(model_extrema{3,m+1},[m_sim,r_sim,h_sim]);
+    y1=predict(model_extrema{3,m},[m_sim,r_sim,h_sim]);
+    y2=predict(model_extrema{3,m+1},[m_sim,r_sim,h_sim]);
     
     t_temp=linspace(t1,t2,100);
-    x_temp=spline([t1,t2],[v1,x1,x2,v2],t_temp);
+    x_temp=spline([t1,t2],[0,x1,x2,0],t_temp);
+    y_temp=spline([t1,t2],[0,y1,y2,0],t_temp);
     
-    t_test=[t_test t_temp];
-    x_sim=[x_sim x_temp];
-    
+    t_test=[t_test(1:end-1) t_temp];
+    x_sim=[x_sim(1:end-1) x_temp];
+    y_sim=[y_sim(1:end-1) y_temp];
     disp('');
 end
+
+
+t_v=t_test(1:end-1);
+vx_sim=diff(x_sim)./diff(t_test);
+vy_sim=diff(y_sim)./diff(t_test);
+
+t_a=t_test(1:end-2);
+ax_sim=diff(vx_sim)./diff(t_v);
+ay_sim=diff(vy_sim)./diff(t_v);
 
 plot(t_test,x_sim);
 hold on;
@@ -286,6 +282,7 @@ num_extrema=2*passes+2;
 
 t_test=[];
 x_sim=[];
+y_sim=[];
 
 for m=1:num_extrema-1
     
@@ -293,16 +290,26 @@ for m=1:num_extrema-1
     t2=predict(model_extrema{1,m+1},[m_sim,r_sim,h_sim]);
     x1=predict(model_extrema{2,m},[m_sim,r_sim,h_sim]);
     x2=predict(model_extrema{2,m+1},[m_sim,r_sim,h_sim]);
-    v1=predict(model_extrema{3,m},[m_sim,r_sim,h_sim]);
-    v2=predict(model_extrema{3,m+1},[m_sim,r_sim,h_sim]);
+    y1=predict(model_extrema{3,m},[m_sim,r_sim,h_sim]);
+    y2=predict(model_extrema{3,m+1},[m_sim,r_sim,h_sim]);
     
     t_temp=linspace(t1,t2,100);
     x_temp=spline([t1,t2],[0,x1,x2,0],t_temp);
+    y_temp=spline([t1,t2],[0,y1,y2,0],t_temp);
     
-    t_test=[t_test t_temp];
-    x_sim=[x_sim x_temp];
+    t_test=[t_test(1:end-1) t_temp];
+    x_sim=[x_sim(1:end-1) x_temp];
+    y_sim=[y_sim(1:end-1) y_temp];
     disp('');
 end
+
+t_v=t_test(1:end-1);
+vx_sim=diff(x_sim)./diff(t_test);
+vy_sim=diff(y_sim)./diff(t_test);
+
+t_a=t_test(1:end-2);
+ax_sim=diff(vx_sim)./diff(t_v);
+ay_sim=diff(vy_sim)./diff(t_v);
 
 plot(t_test,x_sim);
 xlabel('Time (s)');
