@@ -2,20 +2,21 @@ clear all; close all;clc;
 %% Things Requiring changeing
 % implemented owners names = 'Patrick','Colin','Jay'
 % put in your own filepath and add your name to the list
+
 ComputerOwner = 'Patrick';
-ConfigPicks = [16,19,20,23,24];
+ConfigPicks = [1,2,10,11];
 
 PlotTrackThings = false;
 MakeNewStartGuess = true;
-TotalStates = 50;
+TotalStates = 100;
 
-TimeStep = 1e-3; % this fairly critical, if much larger will miss tol and oscilate never reaching no slip cond.
+TimeStep = 5e-4; % this fairly critical, if much larger will miss tol and oscilate never reaching no slip cond.
 
-CD_bounds = [0,3];
-CRF_bounds = [0,.05];
-IDK_bounds = [0,.1];
-muk_bounds = [.05,.25];
-mus_times_bounds = [1,2];
+CD_bounds = [.4,1];
+CRF_bounds = [0,.02];
+IDK_bounds = [0,.05];
+muk_bounds = [.05,.15];
+mus_times_bounds = [1,1.5];
 sinit_bounds = [.1,.6];
 DeltaS = .01;
 Random_bounds = [CD_bounds;CRF_bounds;IDK_bounds;muk_bounds;mus_times_bounds;sinit_bounds];
@@ -119,7 +120,7 @@ for ConfigPick = ConfigPicks
     Ydata = config.y{1}/100;
     Tdata = config.t{1};
     m = config.m/1000;
-    rg = config.r/1000;
+    rg = sqrt(2)*config.r/1000;
     rw = .11882; % from solid works model
     Passes = config.passes;
     DropHeight = config.h;
@@ -224,7 +225,7 @@ for ConfigPick = ConfigPicks
 
     sdot = xvectsim(:,2);
     thetadot = xvectsim(:,4);
-    KineticEnergy = .5*m*sdot.^2 + .5*m*rg^2*thetadot.^2;
+    KineticEnergy = .5*m*sdot.^2 + m*rg^2*thetadot.^2;
     PotentialEnergy = m*9.81*ysim;
     TotalEnergy = KineticEnergy + PotentialEnergy;
 

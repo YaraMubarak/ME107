@@ -47,7 +47,7 @@ WinVector = Something(1:6,1);
 SquareError = Something(7,1);
 MSE = SquareError/numel(Tdata);
 fprintf('Declared MSE: %.6f \n',MSE)
-fprintf('Close to what MSE outputs %.6f \n',sqrt(MSE))
+fprintf('Why should this work? %.6f \n',sqrt(MSE))
 
 
 Trackxvals = (1/100)*[5.9,9.9,13.5,17.7,20.2,25,29,32.7,37.6,41,67.2,109.1,151.3,194.5,230.0,281,324,366.1,408.4,451.5,495.9,538.1,581.3,624.2,666.1,698.1,745];
