@@ -29,6 +29,7 @@ config = averagedConfigurations_04_12(ConfigPick);
 Xdata = config.x{1}/100;
 Ydata = config.y{1}/100;
 Tdata = config.t{1};
+Terror = config.terr{1};
 m = config.m/1000;
 rg = sqrt(2)*config.r/1000;
 rw = .11882; % from solid works model
@@ -89,14 +90,20 @@ switch DropHeight
         SinitCalc = x_to_s(.55);
     case 2
         SinitCalc = x_to_s(.50);
+    case 3
+        SinitCalc = x_to_s(.4476); % interpolation not measured
     case 4
         SinitCalc = x_to_s(.408);
     case 5
         SinitCalc = x_to_s(.366);
     case 6
         SinitCalc = x_to_s(.322);
+    case 7
+        SinitCalc = x_to_s(.2929); % interpolation not measured
     case 8
         SinitCalc = x_to_s(.244);
+    case 9
+        SinitCalc = x_to_s(.2127); % interpolation not measured
     case 10
         SinitCalc = x_to_s(.178);
     otherwise
