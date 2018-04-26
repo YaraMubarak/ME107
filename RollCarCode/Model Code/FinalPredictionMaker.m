@@ -2,19 +2,19 @@ clear all; close all; clc;
 tic;
 TimeStep = 5e-4;
 
-m = 2.5;
-DropHeight = 10;
-rg = .05;
+m = 1.8987;
+DropHeight = 7;
+rg = .0417;
 rg = sqrt(2)*rg;
 rw = .11882; % from solid works model
 
-CD = .5;
-CRF = .0005;
-IDK = .001;
-muk = .15;
-mus = muk*1.2;
-DeltaS = 0;
-Tend = 20;
+CD = .71;
+CRF = .0033;
+IDK = .0025;
+muk = .094;
+mus = muk*1.25;
+DeltaS = .005;
+Tend = 25;
 
 
 Trackxvals = (1/100)*[5.9,9.9,13.5,17.7,20.2,25,29,32.7,37.6,41,67.2,109.1,151.3,194.5,230.0,281,324,366.1,408.4,451.5,495.9,538.1,581.3,624.2,666.1,698.1,745];
@@ -177,17 +177,17 @@ fprintf('Model Prediction ')
 toc;
 % 
 % % % % animation to ensure that results "look" right
-pause(10)
-figure()
-interppoints = linspace(Trackxvals(1),Trackxvals(end),2000);
-for index = 1:20:numel(tsim)
-    plot(interppoints,TrackPosition(interppoints),'r')
-    hold on
-    plot(xsim(index),ysim(index),'go')
-    hold off
-    pause(.001)
-end
-disp('Graphics are done')
+% % % pause(10)
+% % % figure()
+% % % interppoints = linspace(Trackxvals(1),Trackxvals(end),2000);
+% % % for index = 1:20:numel(tsim)
+% % %     plot(interppoints,TrackPosition(interppoints),'r')
+% % %     hold on
+% % %     plot(xsim(index),ysim(index),'go')
+% % %     hold off
+% % %     pause(.001)
+% % % end
+% % % disp('Graphics are done')
 % 
 % 
 % 

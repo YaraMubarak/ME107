@@ -1,7 +1,7 @@
 clear all; close all; clc;
 tic;
 ComputerOwner = 'Patrick';
-ConfigPick = 26;
+ConfigPick = 20;
 fprintf('Begining Config Check for Config Num: %i\n',ConfigPick)
 TimeStep = 5e-4;
 
@@ -157,7 +157,7 @@ KineticEnergy = .5*m*sdot.^2 + .5*m*rg^2*thetadot.^2;
 PotentialEnergy = m*9.81*ysim;
 TotalEnergy = KineticEnergy + PotentialEnergy;
 
-% plot lots of figures to determine if simulation is physical or not
+%% plot lots of figures to determine if simulation is physical or not
 figure();
 hold on;
 plot(tsim,KineticEnergy,'r');
@@ -172,7 +172,7 @@ legend('KE','PE','TE','Vp','Location','Best')
 
 figure();
 hold on
-errorbar(Tdata,Xdata,Terror,Terror,Xerror,Xerror,'k')
+errorbar(Tdata,Xdata,Xerror,Xerror,Terror,Terror,'k')
 plot(tsim,xsim,'r--');
 xlabel('Time [s]');
 ylabel('x [m]');
@@ -183,7 +183,7 @@ set(gca,'FontSize',14);
 
 figure();
 hold on
-errorbar(Tdata,Ydata,Terror,Terror,Yerror,Yerror,'k')
+errorbar(Tdata,Ydata,Yerror,Yerror,Terror,Terror,'k')
 plot(tsim,ysim,'r--')
 xlabel('Time [s]');
 ylabel('y [m]');

@@ -118,6 +118,9 @@ for ConfigPick = ConfigPicks
     DeltaS = sinit - SinitCalc;
     
     FinalLabelsStruct(count).ConfigNum = ConfigPick;
+    FinalLabelsStruct(count).m = m;
+    FinalLabelsStruct(count).rg = rg;
+    FinalLabelsStruct(count).h = s_to_x(SinitCalc);
     FinalLabelsStruct(count).CD = CD;
     FinalLabelsStruct(count).CRF = CRF;
     FinalLabelsStruct(count).IDK = IDK;
