@@ -1,10 +1,9 @@
+function averagedConfigurations=averageRuns(combinedConfigurations)
 % Combines all runs in combinedConfiguration struct and gives terr.
 % Note: terr=NAN if only one run exists for each pass.
 
-function averagedConfigurations=averageRuns(combinedConfigurations)
-
 for m=1:length(combinedConfigurations)
-averagedConfigurations(m)=removeRedundantPosition(combinedConfigurations(m));
+    averagedConfigurations(m)=removeRedundantPosition(combinedConfigurations(m));
 end
 
 for m=1:length(combinedConfigurations)

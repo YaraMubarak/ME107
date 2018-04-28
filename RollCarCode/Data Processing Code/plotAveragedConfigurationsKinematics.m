@@ -1,5 +1,17 @@
-function []=plotAveragedConfigurationsPosition(averagedConfigurations,config_parameter,save)
-
+function []=plotAveragedConfigurationsKinematics(averagedConfigurations,config_parameter,save)
+% This configuration programmatically plots each configurations x and y
+% positions, velocities, and accelerations.
+%
+% FIELDS of a configuration parameter struct:
+%
+% - m (mass, in grams)
+% - r (radius of gyration, in mm)
+% - h (height, in cm)
+%
+%
+% NOTE: to simply plot all configurations, pass an empty array as
+% config_parameter.
+%
     if isempty(config_parameter)
         len=length(averagedConfigurations);
     else

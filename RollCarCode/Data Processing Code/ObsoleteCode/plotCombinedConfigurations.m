@@ -1,12 +1,4 @@
-% FIELDS of a configuration parameter struct:
-%
-% - m (mass, in grams)
-% - r (radius of gyration, in mm)
-% - h (height, in cm)
-%
-%
-% NOTE: to simply plot all configurations, pass an empty array as
-% config_parameter.
+
 
 function []=plotCombinedConfigurations(combinedConfigurations,config_parameter)
 

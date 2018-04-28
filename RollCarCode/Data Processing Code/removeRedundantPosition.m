@@ -1,4 +1,7 @@
 function config2=removeRedundantPosition(config1)
+% This function removes duplicate positions from the configuration position
+% array.  It then replaces the time corresponding to this position with the
+% average time corresponding to this position.
     config2.m=config1.m;
     config2.r=config1.r;
     config2.h=config1.h;
@@ -61,13 +64,9 @@ function config2=removeRedundantPosition(config1)
                 index=p;
             end
         end
-        disp('');
         config2.x{m}=config2.x{m}(1:minSizePosArr(index));
         config2.y{m}=config2.y{m}(1:minSizePosArr(index));
         config2.t{m}=config2.t{m}(1:minSizePosArr(index));
-        %config2.xerr{m}={};%0.2*ones(1,minSizePosArr(index));
-        %config2.yerr{m}={};%0.2*ones(1,minSizePosArr(index));
-        %config2.terr{m}={};%zeros(1,minSizePosArr(index)); % Will be set later
     end
     
     

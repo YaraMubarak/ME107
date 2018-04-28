@@ -1,3 +1,8 @@
+
+function combinedConfigurations=combineRuns(trimmedConfigurations)
+% This function combines data from runs 1,2,3,4, etc. of a particular
+% configuration.
+%
 % FIELDS of a combinedConfiguration struct:
 %
 % - m (mass, in grams)
@@ -13,10 +18,6 @@
 %           containing all passes for the runs)
 % - total_runs (total runs conducted)
 %
-% This function combines data from runs 1,2,3,4, of a particular
-% configuration.
-
-function combinedConfigurations=combineRuns(trimmedConfigurations)
     index=1;
     
     combinedConfigurations(1).m=-1;

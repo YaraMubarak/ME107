@@ -1,5 +1,5 @@
 %% Determining the most important parameter.
-% This function plots the number of passes against the roll car mass, the
+% This script plots the number of passes against the roll car mass, the
 % radius of gyration, and the drop height to determine which parameter is
 % the most important.
 load configurations_03_22_trimmed;

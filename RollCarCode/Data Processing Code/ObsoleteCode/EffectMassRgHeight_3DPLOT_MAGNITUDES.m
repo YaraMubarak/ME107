@@ -81,7 +81,6 @@ baseText=['Effect of ' type ' on '];
             grid on;
         end
         v_err_mean=mean(v_err);
-        %plot3([0,0],[0 0],[0 2*v_err_mean]);
         
         figure(4);
         hold on;
@@ -100,94 +99,3 @@ baseText=['Effect of ' type ' on '];
             
             grid on;
         end
-        
-        %{
-        figure(5);
-        hold on;
-        for m=1:length(configs)
-            terr=configs(m).terr{1};
-            if ~isnan(terr)
-            t=configs(m).t{1};
-            val=values(m)*ones(size(configs(m).t{1}));
-            plot3(t,val,terr);
-            xlabel('Time (s)');
-            ylabel(ylabelText);
-            zlabel('Error in the time (s)');
-            title([baseText ' Error in Time']);
-            set(gca,'FontSize',14);
-            grid on;
-            end
-        end
-        
-        figure(6);
-        hold on;
-        for m=1:length(configs)
-            terr=configs(m).terr{1};
-            t=configs(m).t{1};
-            val=values(m)*ones(size(configs(m).t{1}));
-            vx_err=configs(m).vx_err{1};
-            if ~isnan(vx_err)
-            plot3(t,val,vx_err);
-            xlabel('Time (s)');
-            ylabel(ylabelText);
-            zlabel('Error in the X Velocity (cm/s)');
-            title([baseText ' Error in X Velocity']);
-            set(gca,'FontSize',14);
-            grid on;
-            end
-        end
-        
-        figure(9);
-        hold on;
-        for m=1:length(configs)
-            terr=configs(m).terr{1};
-            t=configs(m).t{1};
-            val=values(m)*ones(size(configs(m).t{1}));
-            vy_err=configs(m).vy_err{1};
-            if ~isnan(vy_err)
-            plot3(t,val,vy_err);
-            xlabel('Time (s)');
-            ylabel(ylabelText);
-            zlabel('Error in the Y Velocity (cm/s)');
-            title([baseText ' Error in Y Velocity']);
-            set(gca,'FontSize',14);
-            grid on;
-            end
-        end
-        
-        figure(10);
-        hold on;
-        for m=1:length(configs)
-            terr=configs(m).terr{1};
-            t=configs(m).t{1};
-            val=values(m)*ones(size(configs(m).t{1}));
-            ax_err=configs(m).ax_err{1};
-            if ~isnan(ax_err)
-            plot3(t,val,ax_err);
-            xlabel('Time (s)');
-            ylabel(ylabelText);
-            zlabel('Error in the X Acceleration (cm/s^2)');
-            title([baseText ' Error in X Acceleration']);
-            set(gca,'FontSize',14);
-            grid on;
-            end
-        end
-        
-        figure(11);
-        hold on;
-        for m=1:length(configs)
-            terr=configs(m).terr{1};
-            t=configs(m).t{1};
-            val=values(m)*ones(size(configs(m).t{1}));
-            ay_err=configs(m).ay_err{1};
-            if ~isnan(ay_err)
-            plot3(t,val,ay_err);
-            xlabel('Time (s)');
-            ylabel(ylabelText);
-            zlabel('Error in the Y Acceleration (cm/s^2)');
-            title([baseText ' Error in Y Acceleration']);
-            set(gca,'FontSize',14);
-            grid on;
-            end
-        end
-        %}

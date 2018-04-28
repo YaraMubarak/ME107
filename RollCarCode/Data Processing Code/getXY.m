@@ -1,3 +1,4 @@
+function [X,Y,T]=getXY(fileName)
 % - fileName is a string that is the name of the .xlsx file that contains the
 % data.
 % - X is the x position of the roll car.
@@ -15,8 +16,7 @@
 % recorded).  However, if desired, you can interpolate to obtain the values
 % of X,Y, and T of the roll car as it passes in between sensors.
 
-function [X,Y,T]=getXY(fileName)
-   rawData=xlsread(fileName,'A24:R20000');
+rawData=xlsread(fileName,'A24:R20000');
    % R20000 is set arbitrary large so that all the data can be taken.  No
    % need to change R20000 unless for some reason the xlsx file is so large
    % that there are more than 20000 rows.

@@ -1,6 +1,6 @@
 clear all; close all; clc;
 tic;
-ComputerOwner = 'Patrick';
+ComputerOwner = 'Colin';
 ConfigPick = 20;
 fprintf('Begining Config Check for Config Num: %i\n',ConfigPick)
 TimeStep = 5e-4;
@@ -13,7 +13,7 @@ switch ComputerOwner
     case 'Patrick'
         GitRepositoryPath = 'C:\Users\pcarl\Documents\College Things\ME 107\Roll Car\Github Code Repository';
     case 'Colin'
-        GitRepositoryPath = '/Users/UmColin/Documents/SHARED/6Sp18/6ME107/Roll Car/Github/ME107';
+        GitRepositoryPath = '/Users/UmColin/Documents/SHARED/6Sp18/6ME107/Roll Car/Github/ME107/';
     case 'Jay'
         GitRepositoryPath = 'C:\Users\Jay\Documents\ME107';
     otherwise
@@ -195,7 +195,7 @@ set(gca,'FontSize',14);
 figure();
 hold on
 plot(tsim,sdot,'k')
-configs(configPick).
+configs(configPick);
 sdot_real=();
 
 xlabel('Time [s]');

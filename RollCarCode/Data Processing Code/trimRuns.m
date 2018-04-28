@@ -1,3 +1,5 @@
+
+function trimmedConfigurations=trimRuns(configurations,trim)
 % FIELDS of a trimmedConfiguration struct:
 %
 % - m (mass, in grams)
@@ -9,10 +11,12 @@
 % - run (run number)
 % - passes (number of complete passes)
 %
-% This function trims the part of the data after which the rollcar fails to
-% pass over the center hill.
+% This function records the number of passes completed by the
+% configuration.
+%
+% This function also can trim the part of the data after which the rollcar 
+% fails to pass over the center hill, if desired.
 
-function trimmedConfigurations=trimRuns(configurations,trim)
     begin_left_hillx=213.9+129.7+180.7+108.8;
     end_right_hillx=108.8;
     

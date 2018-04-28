@@ -1,3 +1,5 @@
+% This script creates a scatter plot of all the configurations tested in
+% this experiment.
 load configurations_04_12_trimmed_v_and_a;
 
 configs=configurations_04_12_trimmed_v_and_a;
