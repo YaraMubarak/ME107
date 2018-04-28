@@ -23,7 +23,7 @@ end
 DataCodeFullPath = strcat(GitRepositoryPath,filesep,ProjectFolder,filesep,DataCodeFolder);
 DataFullPath = strcat(GitRepositoryPath,filesep,ProjectFolder,filesep,DataFolder);
 addpath(DataFullPath,DataCodeFullPath)
-load configurations_04_12_untrimmed;
+load configurations_04_12_untrimmed_v_and_a;
 
 config = averagedConfigurations_04_12(ConfigPick);
 Xdata = config.x{1}/100;
@@ -185,6 +185,9 @@ set(gca,'FontSize',14);
 figure();
 hold on
 plot(tsim,sdot,'k')
+configs(configPick).
+sdot_real=();
+
 xlabel('Time [s]');
 ylabel('Speed [m/s]');
 titstr = sprintf('Simulation Speed vs t for Config number: %i',ConfigPick);

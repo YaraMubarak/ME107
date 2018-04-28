@@ -264,9 +264,9 @@ end
 
 %% Run the model on a New Case
 
-m_sim=1000; % g
-r_sim=40; % mm
-h_sim=35; % cm
+m_sim=1898.7; % g
+r_sim=41.7; % mm
+h_sim=45.2; % cm
 
 % Predict total run time
 

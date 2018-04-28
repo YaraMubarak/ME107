@@ -36,9 +36,9 @@ averagedConfigurations_04_12 = averageRuns(combinedConfigurations_04_12);
 save configurations_04_12_trimmed;
 %% Computing Velocity and Acceleration 04/12
 clear all;
-load configurations_04_12_trimmed;
-configurations_04_12_trimmed_v_and_a=computeVelocityAndAcceleration(averagedConfigurations_04_12);
-save configurations_04_12_trimmed_v_and_a;
+load configurations_04_12_untrimmed;
+configurations_04_12_untrimmed_v_and_a=computeVelocityAndAcceleration(averagedConfigurations_04_12);
+save configurations_04_12_untrimmed_v_and_a;
 %%
 trimmedConfigurations_04_12 = trimRuns(configurations_04_12,trim);
 combinedConfigurations_04_12 = combineRuns(trimmedConfigurations_04_12);
