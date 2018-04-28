@@ -45,3 +45,12 @@ combinedConfigurations_04_12 = combineRuns(trimmedConfigurations_04_12);
 averagedConfigurations_04_12 = averageRuns(combinedConfigurations_04_12);
 save('configurations_04_12_untrimmed','averagedConfigurations_04_12');
 disp('It is Finished');cs
+%% Get Model Test Data
+clear all;
+model_folder='/Users/UmColin/Documents/SHARED/6Sp18/6ME107/Roll Car/Github/ME107/RollCarCode/Data/ModelTest/';
+model_configuration=getConfigurationData({model_folder});
+model_trimmed=trimRuns(model_configuration,true);
+model_combined=combineRuns(model_trimmed);
+model_averaged=averageRuns(model_combined);
+model_trimmed_v_and_a=computeVelocityAndAcceleration(model_averaged);
+save model_trimmed_v_and_a;
