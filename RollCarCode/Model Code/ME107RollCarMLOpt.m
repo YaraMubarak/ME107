@@ -4,7 +4,7 @@ clear all; close all;clc;
 % put in your own filepath and add your name to the list
 
 ComputerOwner = 'Patrick';
-ConfigPicks = [1,2,10,11];
+ConfigPicks = [28];
 
 PlotTrackThings = false;
 MakeNewStartGuess = true;

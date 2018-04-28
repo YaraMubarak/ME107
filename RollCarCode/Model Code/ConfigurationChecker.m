@@ -1,7 +1,7 @@
 clear all; close all; clc;
 tic;
 ComputerOwner = 'Patrick';
-ConfigPick = 21;
+ConfigPick = 20;
 fprintf('Begining Config Check for Config Num: %i\n',ConfigPick)
 TimeStep = 5e-4;
 
@@ -29,6 +29,9 @@ config = averagedConfigurations_04_12(ConfigPick);
 Xdata = config.x{1}/100;
 Ydata = config.y{1}/100;
 Tdata = config.t{1};
+Terror = config.terr{1};
+Xerror = config.xerr{1}/100;
+Yerror = config.yerr{1}/100;
 m = config.m/1000;
 rg = sqrt(2)*config.r/1000;
 rw = .11882; % from solid works model
@@ -89,14 +92,20 @@ switch DropHeight
         SinitCalc = x_to_s(.55);
     case 2
         SinitCalc = x_to_s(.50);
+    case 3
+        SinitCalc = x_to_s(.4476); % interpolation not measured
     case 4
         SinitCalc = x_to_s(.408);
     case 5
         SinitCalc = x_to_s(.366);
     case 6
         SinitCalc = x_to_s(.322);
+    case 7
+        SinitCalc = x_to_s(.2929); % interpolation not measured
     case 8
         SinitCalc = x_to_s(.244);
+    case 9
+        SinitCalc = x_to_s(.2127); % interpolation not measured
     case 10
         SinitCalc = x_to_s(.178);
     otherwise
@@ -148,21 +157,22 @@ KineticEnergy = .5*m*sdot.^2 + .5*m*rg^2*thetadot.^2;
 PotentialEnergy = m*9.81*ysim;
 TotalEnergy = KineticEnergy + PotentialEnergy;
 
-% plot lots of figures to determine if simulation is physical or not
+%% plot lots of figures to determine if simulation is physical or not
 figure();
 hold on;
 plot(tsim,KineticEnergy,'r');
 plot(tsim,PotentialEnergy,'g');
 plot(tsim,TotalEnergy,'b')
+plot(tsim,sdot-rw*thetadot,'k')
 titstr = sprintf('Plots of Energy vs time for simulation for ConfigPick num: %i',ConfigPick);
 title(titstr)
 xlabel('Time [s]')
 ylabel('Energy [joules]')
-legend('KE','PE','TE','Location','Best')
+legend('KE','PE','TE','Vp','Location','Best')
 
 figure();
 hold on
-plot(Tdata,Xdata,'k-x');
+errorbar(Tdata,Xdata,Xerror,Xerror,Terror,Terror,'k')
 plot(tsim,xsim,'r--');
 xlabel('Time [s]');
 ylabel('x [m]');
@@ -173,7 +183,7 @@ set(gca,'FontSize',14);
 
 figure();
 hold on
-plot(Tdata,Ydata,'k-x');
+errorbar(Tdata,Ydata,Yerror,Yerror,Terror,Terror,'k')
 plot(tsim,ysim,'r--')
 xlabel('Time [s]');
 ylabel('y [m]');

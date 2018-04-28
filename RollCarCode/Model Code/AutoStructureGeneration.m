@@ -64,7 +64,10 @@ for ConfigPick = ConfigPicks
     config = averagedConfigurations_04_12(ConfigPick);
     m = config.m/1000;
     rg = config.r/1000;
+    rg = sqrt(2)*rg;
     DropHeight = config.h;
+    
+    Tdata = config.t{1};
 
     thingname = sprintf('Survivors_m_%.4f_rg_%.6f_h_%d.mat',m,rg,DropHeight);
     Loadpath = strcat(GitRepositoryPath,filesep,ProjectFolder,filesep,SaveFolder,filesep,thingname);
@@ -79,6 +82,10 @@ for ConfigPick = ConfigPicks
     fnames = fieldnames(T);
     Something = T.(fnames{1});
     WinVector = Something(1:6,1);
+    
+    SquareError = Something(7,1);
+    MSE = sqrt(SquareError/numel(Tdata));
+    fprintf('Declared MSE: %.6f \n',MSE)
     
     
     CD = WinVector(1);
@@ -111,12 +118,16 @@ for ConfigPick = ConfigPicks
     DeltaS = sinit - SinitCalc;
     
     FinalLabelsStruct(count).ConfigNum = ConfigPick;
+    FinalLabelsStruct(count).m = m;
+    FinalLabelsStruct(count).rg = rg;
+    FinalLabelsStruct(count).h = s_to_x(SinitCalc);
     FinalLabelsStruct(count).CD = CD;
     FinalLabelsStruct(count).CRF = CRF;
     FinalLabelsStruct(count).IDK = IDK;
     FinalLabelsStruct(count).Muk = muk;
     FinalLabelsStruct(count).Mus = mus;
     FinalLabelsStruct(count).DeltaS = DeltaS;
+    FinalLabelsStruct(count).MSE = MSE;
 end
 Savename = 'FinalLabelsStruct.mat';
 Savepath = strcat(GitRepositoryPath,filesep,ProjectFolder,filesep,SaveFolder,filesep,Savename);
