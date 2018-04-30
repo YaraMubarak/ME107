@@ -1,3 +1,4 @@
+function configurations=getConfigurationData(folderPath)
 % - folderPath is a cell array that contains strings of the folders that
 % will be searched.
 % - configurations is a struct array of the data extracted from all the
@@ -20,9 +21,6 @@
 %   - This function assumes that the file names comply with the following
 %     regex:
 %     '(\d+_\d+)_rg_(\d+_\d+)_mass_(\d+)_height_run(\d).xlsx'
-
-function configurations=getConfigurationData(folderPath)
-
 regular_expression=...
 '(\d+_\d+)_rg_(\d+_\d+)_mass_(\d+)_height_run(\d).xlsx';
 

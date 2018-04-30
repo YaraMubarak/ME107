@@ -1,4 +1,6 @@
 function [deriv1,deriv1err,deriv2,deriv2err]=derivative12_spline(xData,xerr,yData)
+% This function calculates the 1st and 2nd derivatives of experimental data
+% using a cubic spline.
     d=3;
     num_el=4;
     

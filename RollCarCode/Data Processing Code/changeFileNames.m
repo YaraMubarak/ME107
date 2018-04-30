@@ -1,4 +1,7 @@
 function []=changeFileNames(folderPath)
+% This function was used to programmatically change the names of data files
+% due to mislabeling.
+
 regular_expression=...
 '(\d+_\d+)_rg_(\d+_\d+)_mass_(\d+)_height_run(\d).xlsx';
 for m=1:length(folderPath)

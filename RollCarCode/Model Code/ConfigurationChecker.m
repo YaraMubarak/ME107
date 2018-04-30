@@ -1,7 +1,7 @@
 clear all; close all; clc;
 tic;
-ComputerOwner = 'Patrick';
-ConfigPick = 20;
+ComputerOwner = 'Colin';
+ConfigPick = 26;
 fprintf('Begining Config Check for Config Num: %i\n',ConfigPick)
 TimeStep = 5e-4;
 
@@ -13,7 +13,7 @@ switch ComputerOwner
     case 'Patrick'
         GitRepositoryPath = 'C:\Users\pcarl\Documents\College Things\ME 107\Roll Car\Github Code Repository';
     case 'Colin'
-        GitRepositoryPath = '/Users/UmColin/Documents/SHARED/6Sp18/6ME107/Roll Car/Github/ME107';
+        GitRepositoryPath = '/Users/UmColin/Documents/SHARED/6Sp18/6ME107/Roll Car/Github/ME107/';
     case 'Jay'
         GitRepositoryPath = 'C:\Users\Jay\Documents\ME107';
     otherwise
@@ -23,15 +23,19 @@ end
 DataCodeFullPath = strcat(GitRepositoryPath,filesep,ProjectFolder,filesep,DataCodeFolder);
 DataFullPath = strcat(GitRepositoryPath,filesep,ProjectFolder,filesep,DataFolder);
 addpath(DataFullPath,DataCodeFullPath)
-load configurations_04_12_untrimmed;
+load configurations_04_12_untrimmed_v_and_a;
 
-config = averagedConfigurations_04_12(ConfigPick);
+config = configurations_04_12_untrimmed_v_and_a(ConfigPick);
 Xdata = config.x{1}/100;
 Ydata = config.y{1}/100;
+Speed_data = sqrt(config.vx{1}.^2+config.vy{1}.^2)/100;
+Acceleration_data = sqrt(config.ax{1}.^2+config.ay{1}.^2)/100;
 Tdata = config.t{1};
 Terror = config.terr{1};
 Xerror = config.xerr{1}/100;
 Yerror = config.yerr{1}/100;
+Speed_error = sqrt(config.vx_err{1}.^2+config.vy_err{1}.^2)/100;
+Acceleration_error = sqrt(config.ax_err{1}.^2+config.ay_err{1}.^2)/100;
 m = config.m/1000;
 rg = sqrt(2)*config.r/1000;
 rw = .11882; % from solid works model
@@ -116,7 +120,17 @@ end
 % fprintf('Winning Vector:\n CD:\t %.4f \n CRF:\t %.5f \n IDK:\t %.5f \n muk:\t %.4f \n musF:\t %.4f \n sinit:\t %.4f \n',WinVector)
 % fprintf('Winning Configuration Mean Square Error: %.6f \n', WinnerMSE)
 % 
-%%
+%% Do computations
+
+drop_height=[23.3,26.6,29.9,33.5,37.7,41.3,45.2,48.7,52.8,55.9]; % cm
+
+mass=config.m;
+r=config.r;
+height=drop_height(config.h);
+
+fileName=['M_' strrep(num2str(mass),'.','_') 'R_g' ...
+            strrep(num2str(r),'.','_') 'Height' ...
+            strrep(num2str(height),'.','_')];
 
 CD = WinVector(1);
 CRF = WinVector(2);
@@ -157,62 +171,116 @@ KineticEnergy = .5*m*sdot.^2 + .5*m*rg^2*thetadot.^2;
 PotentialEnergy = m*9.81*ysim;
 TotalEnergy = KineticEnergy + PotentialEnergy;
 
+save([fileName,'.mat']);
 %% plot lots of figures to determine if simulation is physical or not
-figure();
+close all;
+saveFig=true;
+
+Speed_error(Speed_error>=0.5)=0;
+Acceleration(Acceleration_error>=0.5)=0;
+
+titleBase=['Mass ' num2str(mass) ' g, ' 'R_g ' ...
+            num2str(r) ' mm, ' ' Height ' ...
+            num2str(height) ' cm'];
+
+figure(1);
 hold on;
 plot(tsim,KineticEnergy,'r');
 plot(tsim,PotentialEnergy,'g');
-plot(tsim,TotalEnergy,'b')
-plot(tsim,sdot-rw*thetadot,'k')
-titstr = sprintf('Plots of Energy vs time for simulation for ConfigPick num: %i',ConfigPick);
-title(titstr)
+plot(tsim,TotalEnergy,'b');
+plot(tsim,sdot-rw*thetadot,'k');
+titstr = sprintf(['Simulation Energy for ' titleBase]);%ConfigPick num: %i',ConfigPick);
+title(titstr);
+set(gca,'FontSize',14);
 xlabel('Time [s]')
-ylabel('Energy [joules]')
+ylabel('Energy [J]')
 legend('KE','PE','TE','Vp','Location','Best')
 
-figure();
+if saveFig
+    saveas(gcf,...
+        ['/Users/UmColin/Documents/SHARED/6Sp18/6ME107/Roll Car/Github/ME107/RollCarCode/Graphs/Model/' ...
+        'Energy_M' strrep(num2str(mass),'.','_') 'R_g' ...
+            strrep(num2str(r),'.','_') 'Height' ...
+            strrep(num2str(height),'.','_')],'jpg');
+end
+
+figure(2);
 hold on
 errorbar(Tdata,Xdata,Xerror,Xerror,Terror,Terror,'k')
 plot(tsim,xsim,'r--');
 xlabel('Time [s]');
 ylabel('x [m]');
-titstr = sprintf('x vs t Data vs Simulation Config number: %i',ConfigPick);
+titstr = sprintf(['x vs t for ' titleBase]);
 title(titstr);
-legend('Data  X Position','Simulation X Position','Location','best')
+legend('Data X Position','Simulation X Position','Location','best')
 set(gca,'FontSize',14);
 
-figure();
+if saveFig
+    saveas(gcf,...
+        ['/Users/UmColin/Documents/SHARED/6Sp18/6ME107/Roll Car/Github/ME107/RollCarCode/Graphs/Model/' ...
+        'X_M' strrep(num2str(mass),'.','_') 'R_g' ...
+            strrep(num2str(r),'.','_') 'Height' ...
+            strrep(num2str(height),'.','_')],'jpg');
+end
+
+figure(3);
 hold on
 errorbar(Tdata,Ydata,Yerror,Yerror,Terror,Terror,'k')
 plot(tsim,ysim,'r--')
 xlabel('Time [s]');
 ylabel('y [m]');
-titstr = sprintf('y vs t Data vs Simulation Config number: %i',ConfigPick);
+titstr = sprintf(['y vs t for ' titleBase]);
 title(titstr);
 legend('Data Y Position','Simulation Y Position','Location','best')
 set(gca,'FontSize',14);
 
-figure();
+if saveFig
+    saveas(gcf,...
+        ['/Users/UmColin/Documents/SHARED/6Sp18/6ME107/Roll Car/Github/ME107/RollCarCode/Graphs/Model/' ...
+        'Y_M' strrep(num2str(mass),'.','_') 'R_g' ...
+            strrep(num2str(r),'.','_') 'Height' ...
+            strrep(num2str(height),'.','_')],'jpg');
+end
+
+figure(4);
 hold on
-plot(tsim,sdot,'k')
+errorbar(Tdata,Speed_data,Speed_error,Speed_error,Terror,Terror,'k');
+plot(tsim,abs(sdot),'r--')
 xlabel('Time [s]');
 ylabel('Speed [m/s]');
-titstr = sprintf('Simulation Speed vs t for Config number: %i',ConfigPick);
+titstr = sprintf(['Speed vs t for ' titleBase]);
 title(titstr);
-%legend('Data Y Position','Simulation Y Position','Location','best')
+legend('Data Speed Data','Simulation Speed','Location','best')
 set(gca,'FontSize',14);
 
-figure();
+if saveFig
+    saveas(gcf,...
+        ['/Users/UmColin/Documents/SHARED/6Sp18/6ME107/Roll Car/Github/ME107/RollCarCode/Graphs/Model/' ...
+        'Speed_M' strrep(num2str(mass),'.','_') 'R_g' ...
+            strrep(num2str(r),'.','_') 'Height' ...
+            strrep(num2str(height),'.','_')],'jpg');
+end
+
+figure(5);
 hold on
-plot(tsim,sddot,'k')
+errorbar(Tdata,Acceleration_data,Acceleration_error,Acceleration_error,Terror,Terror,'k');
+plot(tsim,abs(sddot),'r--')
 xlabel('Time [s]');
 ylabel('Acceleration [m/s^2]');
-titstr = sprintf('Acceleration vs t for Config number: %i',ConfigPick);
+titstr = sprintf(['Acceleration vs t for ' titleBase]);
 title(titstr);
-%legend('Data Y Position','Simulation Y Position','Location','best')
+legend('Data Acceleration Data','Simulation Acceleration','Location','best')
 set(gca,'FontSize',14);
 
-figure();
+if saveFig
+    saveas(gcf,...
+        ['/Users/UmColin/Documents/SHARED/6Sp18/6ME107/Roll Car/Github/ME107/RollCarCode/Graphs/Model/' ...
+        'Acceleration_M' strrep(num2str(mass),'.','_') 'R_g' ...
+            strrep(num2str(r),'.','_') 'Height' ...
+            strrep(num2str(height),'.','_')],'jpg');
+end
+
+figure(6);
 hold on;
 plot(tsim,sdot,'m');
 plot(tsim,rw*thetadot,'c');
