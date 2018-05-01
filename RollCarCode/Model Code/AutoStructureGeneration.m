@@ -57,7 +57,7 @@ TrackPosition_s = @(s) TrackPosition(s_to_x(s));
 TrackSlope_s = @(s) TrackSlope(s_to_x(s));
 TrackConcavity_s = @(s) TrackConcavity(s_to_x(s));
 TrackCurvature_s = @(s) TrackCurvature(s_to_x(s));
-%% For each Configpick now get the data
+%% For each Config pick now get the data
 count = 0;
 FinalLabelsStruct = struct();
 for ConfigPick = ConfigPicks
