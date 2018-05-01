@@ -4,18 +4,33 @@ clear all; close all; clc;
 tic;
 TimeStep = 5e-4;
 
+% from the day of
+% m = 1.8987;
+% DropHeight = 7;
+% rg = .0417;
+% rg = sqrt(2)*rg;
+% rw = .11882; % from solid works model
+% 
+% CD = .67;
+% CRF = .0028;
+% IDK = .0023;
+% muk = .095;
+% mus = .12;
+% DeltaS = .00365;
+% Tend = 25;
+
 m = 1.8987;
 DropHeight = 7;
 rg = .0417;
 rg = sqrt(2)*rg;
 rw = .11882; % from solid works model
 
-CD = .71;
-CRF = .0033;
-IDK = .0025;
-muk = .094;
-mus = muk*1.25;
-DeltaS = .005;
+CD = .67;
+CRF = .0028;
+IDK = .0023;
+muk = .095;
+mus = .12;
+DeltaS = .00365;
 Tend = 25;
 
 
