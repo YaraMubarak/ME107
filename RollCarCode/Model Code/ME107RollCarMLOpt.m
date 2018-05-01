@@ -1,5 +1,5 @@
 clear all; close all;clc;
-%% Things Requiring changeing
+%% Things Requiring changing
 % implemented owners names = 'Patrick','Colin','Jay'
 % put in your own filepath and add your name to the list
 
