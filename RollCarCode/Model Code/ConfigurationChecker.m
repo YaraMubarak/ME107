@@ -1,3 +1,4 @@
+%% Sets up all of the variables
 clear all; close all; clc;
 tic;
 ComputerOwner = 'Colin';
@@ -172,7 +173,7 @@ PotentialEnergy = m*9.81*ysim;
 TotalEnergy = KineticEnergy + PotentialEnergy;
 
 save([fileName,'.mat']);
-%% plot lots of figures to determine if simulation is physical or not
+%% Plot lots of figures to determine if simulation is physical or not
 close all;
 saveFig=true;
 
@@ -188,13 +189,13 @@ hold on;
 plot(tsim,KineticEnergy,'r');
 plot(tsim,PotentialEnergy,'g');
 plot(tsim,TotalEnergy,'b');
-plot(tsim,sdot-rw*thetadot,'k');
+%plot(tsim,sdot-rw*thetadot,'k');
 titstr = sprintf(['Simulation Energy for ' titleBase]);%ConfigPick num: %i',ConfigPick);
 title(titstr);
 set(gca,'FontSize',14);
 xlabel('Time [s]')
 ylabel('Energy [J]')
-legend('KE','PE','TE','Vp','Location','Best')
+legend('KE','PE','TE','Location','Best')
 
 if saveFig
     saveas(gcf,...
